@@ -14,37 +14,42 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalln("Error loading .env file")
 	}
 
-	db, err := database.Database()
+	db, err := database.Open("./local.db")
 	if err != nil {
-		log.Println(err)
+		log.Fatalf("unable to open database: %s", err)
 	}
-	db.DB()
 
 	if err = db.AutoMigrate(&lang.Lang{}); err != nil {
-		log.Println(err)
+		log.Fatalf("unable to migrate database: %s", err)
 	}
 
 	r := gin.Default()
 
+	apikey := os.Getenv("API_KEY")
+
 	langRouter := r.Group("/langs")
 	{
-		langRouter.GET("", lang.FindAll)
-		langRouter.Use(Authorization()).POST("", lang.Create)
-		langRouter.Use(Authorization()).PATCH("/:isoCode", lang.Update)
-		langRouter.Use(Authorization()).DELETE("/:isoCode", lang.Delete)
+		controller := lang.NewController(db)
+		auth := Authorization(apikey)
+		langRouter.GET("", controller.FindAll)
+		langRouter.Use(auth).POST("", controller.Create)
+		langRouter.Use(auth).PATCH("/:isoCode", controller.Update)
+		langRouter.Use(auth).DELETE("/:isoCode", controller.Delete)
 	}
 
-	r.Run()
+	if err := r.Run(); err != nil {
+		log.Fatalf("error: %s", err.Error())
+	}
 }
 
 type authHeader struct {
 	Authorization string `header:"Authorization" binding:"required"`
 }
 
-func Authorization() gin.HandlerFunc {
+func Authorization(apiKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var header authHeader
 		if err := c.BindHeader(&header); err != nil {
@@ -53,8 +58,6 @@ func Authorization() gin.HandlerFunc {
 			})
 			return
 		}
-
-		apiKey := os.Getenv("API_KEY")
 
 		if header.Authorization != apiKey {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
