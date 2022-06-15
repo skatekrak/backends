@@ -1,7 +1,6 @@
 package lang
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -43,8 +42,6 @@ func (c *Controller) Create(ctx *gin.Context) {
 		return
 	}
 
-	log.Println(body)
-
 	lang := Lang{
 		IsoCode:  body.IsoCode,
 		ImageURL: body.ImageURL,
@@ -72,8 +69,6 @@ func (c *Controller) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
-
-	log.Println("URI:", uri)
 
 	var body updateBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
