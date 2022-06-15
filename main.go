@@ -17,11 +17,10 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	db, err := database.Database()
+	db, err := database.Open("./local.db")
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
-	db.DB()
 
 	if err = db.AutoMigrate(&lang.Lang{}); err != nil {
 		log.Println(err)
