@@ -35,10 +35,7 @@ type createBody struct {
 func (c *Controller) Create(ctx *gin.Context) {
 	var body createBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "Wrong body",
-			"error":   err.Error(),
-		})
+		ctx.Error(err)
 		return
 	}
 
@@ -48,7 +45,7 @@ func (c *Controller) Create(ctx *gin.Context) {
 	}
 
 	if err := c.db.Create(&lang).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
 		return
 	}
 

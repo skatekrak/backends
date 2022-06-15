@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/lang"
+	"github.com/skatekrak/scribe/middlewares"
 )
 
 func main() {
@@ -25,7 +26,7 @@ func main() {
 	}
 
 	r := gin.Default()
-
+	r.Use(middlewares.ErrorHandler())
 	lang.Route(r, db)
 
 	if err := r.Run(); err != nil {
