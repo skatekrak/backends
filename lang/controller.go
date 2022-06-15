@@ -5,32 +5,38 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/skatekrak/scribe/database"
+	"gorm.io/gorm"
 )
 
-func FindAll(c *gin.Context) {
-	db, _ := database.Database()
+type Controller struct {
+	db *gorm.DB
+}
 
+func NewController(db *gorm.DB) *Controller {
+	return &Controller{db}
+}
+
+func (c *Controller) FindAll(ctx *gin.Context) {
 	var langs []Lang
-	if err := db.Find(&langs).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+	if err := c.db.Find(&langs).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, langs)
+	ctx.JSON(http.StatusOK, langs)
 }
 
-type CreateBody struct {
+type createBody struct {
 	IsoCode  string `json:"isoCode" binding:"required,len=2"`
 	ImageURL string `json:"imageURL" binding:"required"`
 }
 
-func Create(c *gin.Context) {
-	var body CreateBody
-	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+func (c *Controller) Create(ctx *gin.Context) {
+	var body createBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Wrong body",
 			"error":   err.Error(),
 		})
@@ -39,19 +45,17 @@ func Create(c *gin.Context) {
 
 	log.Println(body)
 
-	db, _ := database.Database()
-
 	lang := Lang{
 		IsoCode:  body.IsoCode,
 		ImageURL: body.ImageURL,
 	}
 
-	if err := db.Create(&lang).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	if err := c.db.Create(&lang).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, lang)
+	ctx.JSON(http.StatusOK, lang)
 }
 
 type updateBody struct {
@@ -62,65 +66,62 @@ type langUri struct {
 	IsoCode string `uri:"isoCode" binding:"required"`
 }
 
-func Update(c *gin.Context) {
+func (c *Controller) Update(ctx *gin.Context) {
 	var uri langUri
-	if err := c.ShouldBindUri(&uri); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+	if err := ctx.ShouldBindUri(&uri); err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
 	}
 
 	log.Println("URI:", uri)
 
 	var body updateBody
-	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Wrong body",
 			"error":   err.Error(),
 		})
 		return
 	}
 
-	db, _ := database.Database()
-
 	var lang Lang
-	if err := db.Where("iso_code = ?", uri.IsoCode).First(&lang).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
+	if err := c.db.Where("iso_code = ?", uri.IsoCode).First(&lang).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": "Lang not found",
 		})
 		return
 	}
 
 	lang.ImageURL = body.ImageURL
-	if err := db.Save(&lang).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	if err := c.db.Save(&lang).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, lang)
+	ctx.JSON(http.StatusOK, lang)
 }
 
-func Delete(c *gin.Context) {
+func (c *Controller) Delete(ctx *gin.Context) {
 	var uri langUri
-	if err := c.BindUri(&uri); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+	if err := ctx.BindUri(&uri); err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	db, _ := database.Database()
-
 	var lang Lang
-	if err := db.Where("iso_code = ?", uri.IsoCode).First(&lang).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
+	if err := c.db.Where("iso_code = ?", uri.IsoCode).First(&lang).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": "Lang not found",
 		})
 		return
 	}
 
-	if err := db.Delete(&lang).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	if err := c.db.Delete(&lang).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Lang deleted",
 	})
 }
