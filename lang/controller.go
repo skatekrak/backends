@@ -8,16 +8,16 @@ import (
 )
 
 type Controller struct {
-	db *gorm.DB
+	s *Service
 }
 
 func NewController(db *gorm.DB) *Controller {
-	return &Controller{db}
+	return &Controller{s: &Service{db}}
 }
 
 func (c *Controller) FindAll(ctx *gin.Context) {
-	var langs []Lang
-	if err := c.db.Find(&langs).Error; err != nil {
+	langs, err := c.s.FindAll()
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -39,12 +39,19 @@ func (c *Controller) Create(ctx *gin.Context) {
 		return
 	}
 
+	if _, err := c.s.Get(body.IsoCode); err == nil {
+		ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
+			"message": "isoCode already used",
+		})
+		return
+	}
+
 	lang := Lang{
 		IsoCode:  body.IsoCode,
 		ImageURL: body.ImageURL,
 	}
 
-	if err := c.db.Create(&lang).Error; err != nil {
+	if err := c.s.Create(&lang); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -63,21 +70,18 @@ type langUri struct {
 func (c *Controller) Update(ctx *gin.Context) {
 	var uri langUri
 	if err := ctx.ShouldBindUri(&uri); err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.Error(err)
 		return
 	}
 
 	var body updateBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "Wrong body",
-			"error":   err.Error(),
-		})
+		ctx.Error(err)
 		return
 	}
 
-	var lang Lang
-	if err := c.db.Where("iso_code = ?", uri.IsoCode).First(&lang).Error; err != nil {
+	lang, err := c.s.Get(uri.IsoCode)
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": "Lang not found",
 		})
@@ -85,7 +89,7 @@ func (c *Controller) Update(ctx *gin.Context) {
 	}
 
 	lang.ImageURL = body.ImageURL
-	if err := c.db.Save(&lang).Error; err != nil {
+	if err := c.s.Update(&lang); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -100,15 +104,15 @@ func (c *Controller) Delete(ctx *gin.Context) {
 		return
 	}
 
-	var lang Lang
-	if err := c.db.Where("iso_code = ?", uri.IsoCode).First(&lang).Error; err != nil {
+	lang, err := c.s.Get(uri.IsoCode)
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": "Lang not found",
 		})
 		return
 	}
 
-	if err := c.db.Delete(&lang).Error; err != nil {
+	if err := c.s.Delete(&lang); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
