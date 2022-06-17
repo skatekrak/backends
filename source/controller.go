@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/skatekrak/scribe/lang"
+	"github.com/skatekrak/scribe/model"
 	"gorm.io/gorm"
 )
 
@@ -80,7 +81,7 @@ func (c *Controller) Create(ctx *gin.Context) {
 		return
 	}
 
-	source := Source{
+	source := model.Source{
 		Order:       nextOrder,
 		SourceType:  body.Type,
 		SkateSource: body.SkateSource,

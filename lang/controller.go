@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/skatekrak/scribe/model"
 	"gorm.io/gorm"
 )
 
@@ -46,7 +47,7 @@ func (c *Controller) Create(ctx *gin.Context) {
 		return
 	}
 
-	lang := Lang{
+	lang := model.Lang{
 		IsoCode:  body.IsoCode,
 		ImageURL: body.ImageURL,
 	}

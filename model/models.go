@@ -1,10 +1,20 @@
-package source
+package model
 
 import (
 	"time"
 
 	"gorm.io/gorm"
 )
+
+type Lang struct {
+	IsoCode   string `gorm:"primaryKey" json:"isoCode"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ImageURL  string         `json:"imageURL"`
+
+	Sources []Source
+}
 
 type Source struct {
 	gorm.Model

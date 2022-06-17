@@ -8,6 +8,7 @@ import (
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/source"
 )
 
@@ -22,7 +23,7 @@ func main() {
 		log.Fatalf("unable to open database: %s", err)
 	}
 
-	if err = db.AutoMigrate(&lang.Lang{}, &source.Source{}); err != nil {
+	if err = db.AutoMigrate(&model.Lang{}, &model.Source{}); err != nil {
 		log.Fatalf("unable to migrate database: %s", err)
 	}
 
