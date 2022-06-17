@@ -8,6 +8,7 @@ import (
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/source"
 )
 
 func main() {
@@ -21,13 +22,14 @@ func main() {
 		log.Fatalf("unable to open database: %s", err)
 	}
 
-	if err = db.AutoMigrate(&lang.Lang{}); err != nil {
+	if err = db.AutoMigrate(&lang.Lang{}, &source.Source{}); err != nil {
 		log.Fatalf("unable to migrate database: %s", err)
 	}
 
 	r := gin.Default()
 	r.Use(middlewares.ErrorHandler())
 	lang.Route(r, db)
+	source.Route(r, db)
 
 	if err := r.Run(); err != nil {
 		log.Fatalf("error: %s", err.Error())
