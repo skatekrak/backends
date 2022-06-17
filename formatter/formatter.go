@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
@@ -27,10 +28,51 @@ func NewJSONFormatter() *JSONFormatter {
 	return &JSONFormatter{}
 }
 
-func msgForTag(fe validator.FieldError) string {
-	switch fe.Tag() {
+func msgForTagAndParam(tag, param string) (string, bool) {
+	switch tag {
 	case "len":
-		return fmt.Sprintf("Length must be at least %v", fe.Param())
+		return fmt.Sprintf("Length must be at least %v", param), true
+	case "eq":
+		return fmt.Sprintf("Must be equal to %v", param), true
+	}
+
+	if strings.Contains(tag, "|") {
+		splitted := strings.Split(tag, "|")
+		log.Println("splitted", splitted)
+
+		mapValues := make(map[string][]string)
+
+		for _, split := range splitted {
+			if strings.Contains(split, "=") {
+				fe := strings.Split(split, "=")
+				log.Println("split", fe)
+
+				mapValues[fe[0]] = append(mapValues[fe[0]], fe[1])
+			}
+		}
+
+		log.Println(mapValues)
+		var messages []string
+
+		for key, values := range mapValues {
+			if msg, ok := msgForTagAndParam(key, strings.Join(values, " or ")); ok {
+				messages = append(messages, msg)
+			}
+		}
+
+		return strings.Join(messages, ", "), true
+	}
+
+	return "", false
+}
+
+func msgForTag(fe validator.FieldError) string {
+	log.Println(fe)
+
+	log.Println("tag", fe.Tag())
+
+	if msg, ok := msgForTagAndParam(fe.Tag(), fe.Param()); ok {
+		return msg
 	}
 	return fe.ActualTag()
 }
