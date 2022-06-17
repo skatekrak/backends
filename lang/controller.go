@@ -12,7 +12,7 @@ type Controller struct {
 }
 
 func NewController(db *gorm.DB) *Controller {
-	return &Controller{s: &Service{db}}
+	return &Controller{s: NewService(db)}
 }
 
 func (c *Controller) FindAll(ctx *gin.Context) {
