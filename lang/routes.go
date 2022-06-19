@@ -8,6 +8,19 @@ import (
 	"gorm.io/gorm"
 )
 
+type CreateBody struct {
+	IsoCode  string `json:"isoCode" binding:"required,len=2"`
+	ImageURL string `json:"imageURL" binding:"required"`
+}
+
+type UpdateBody struct {
+	ImageURL string `json:"imageURL" binding:"required"`
+}
+
+type LangUri struct {
+	IsoCode string `uri:"isoCode" binding:"required"`
+}
+
 func Route(r *gin.Engine, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
 	controller := NewController(db)
@@ -19,9 +32,13 @@ func Route(r *gin.Engine, db *gorm.DB) {
 		router.GET("", controller.FindAll)
 		router.Use(auth)
 		{
-			router.POST("", controller.Create)
-			router.PATCH("/:isoCode", controller.Update)
-			router.DELETE("/:isoCode", controller.Delete)
+			router.POST("", middlewares.JSONHandler[CreateBody](), controller.Create)
+
+			router.Use(middlewares.URIHandler[LangUri]())
+			{
+				router.PATCH("/:isoCode", middlewares.JSONHandler[UpdateBody](), controller.Update)
+				router.DELETE("/:isoCode", controller.Delete)
+			}
 		}
 	}
 }

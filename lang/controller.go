@@ -28,17 +28,8 @@ func (c *Controller) FindAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, langs)
 }
 
-type createBody struct {
-	IsoCode  string `json:"isoCode" binding:"required,len=2"`
-	ImageURL string `json:"imageURL" binding:"required"`
-}
-
 func (c *Controller) Create(ctx *gin.Context) {
-	var body createBody
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.Error(err)
-		return
-	}
+	body := ctx.Keys["body"].(CreateBody)
 
 	if _, err := c.s.Get(body.IsoCode); err == nil {
 		ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
@@ -60,26 +51,9 @@ func (c *Controller) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, lang)
 }
 
-type updateBody struct {
-	ImageURL string `json:"imageURL" binding:"required"`
-}
-
-type langUri struct {
-	IsoCode string `uri:"isoCode" binding:"required"`
-}
-
 func (c *Controller) Update(ctx *gin.Context) {
-	var uri langUri
-	if err := ctx.ShouldBindUri(&uri); err != nil {
-		ctx.Error(err)
-		return
-	}
-
-	var body updateBody
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.Error(err)
-		return
-	}
+	uri := ctx.Keys["uri"].(LangUri)
+	body := ctx.Keys["body"].(UpdateBody)
 
 	lang, err := c.s.Get(uri.IsoCode)
 	if err != nil {
@@ -99,11 +73,7 @@ func (c *Controller) Update(ctx *gin.Context) {
 }
 
 func (c *Controller) Delete(ctx *gin.Context) {
-	var uri langUri
-	if err := ctx.BindUri(&uri); err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
-		return
-	}
+	uri := ctx.Keys["uri"].(LangUri)
 
 	lang, err := c.s.Get(uri.IsoCode)
 	if err != nil {
