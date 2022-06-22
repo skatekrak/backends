@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/skatekrak/scribe/context"
 	"github.com/skatekrak/scribe/model"
 	"gorm.io/gorm"
 )
@@ -14,6 +15,23 @@ type Controller struct {
 
 func NewController(db *gorm.DB) *Controller {
 	return &Controller{s: NewService(db)}
+}
+
+func (c *Controller) LoaderHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		uri := context.GetURI[LangUri](ctx)
+
+		lang, err := c.s.Get(uri.IsoCode)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+				"message": "Lang not found",
+			})
+			return
+		}
+
+		ctx.Set("lang", lang)
+		ctx.Next()
+	}
 }
 
 func (c *Controller) FindAll(ctx *gin.Context) {
@@ -29,7 +47,7 @@ func (c *Controller) FindAll(ctx *gin.Context) {
 }
 
 func (c *Controller) Create(ctx *gin.Context) {
-	body := ctx.Keys["body"].(CreateBody)
+	body := context.GetBody[CreateBody](ctx)
 
 	if _, err := c.s.Get(body.IsoCode); err == nil {
 		ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
@@ -52,16 +70,8 @@ func (c *Controller) Create(ctx *gin.Context) {
 }
 
 func (c *Controller) Update(ctx *gin.Context) {
-	uri := ctx.Keys["uri"].(LangUri)
-	body := ctx.Keys["body"].(UpdateBody)
-
-	lang, err := c.s.Get(uri.IsoCode)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "Lang not found",
-		})
-		return
-	}
+	lang := ctx.Keys["lang"].(model.Lang)
+	body := context.GetBody[UpdateBody](ctx)
 
 	lang.ImageURL = body.ImageURL
 	if err := c.s.Update(&lang); err != nil {
@@ -73,15 +83,7 @@ func (c *Controller) Update(ctx *gin.Context) {
 }
 
 func (c *Controller) Delete(ctx *gin.Context) {
-	uri := ctx.Keys["uri"].(LangUri)
-
-	lang, err := c.s.Get(uri.IsoCode)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "Lang not found",
-		})
-		return
-	}
+	lang := ctx.Keys["lang"].(model.Lang)
 
 	if err := c.s.Delete(&lang); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)

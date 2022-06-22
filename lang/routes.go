@@ -34,7 +34,7 @@ func Route(r *gin.Engine, db *gorm.DB) {
 		{
 			router.POST("", middlewares.JSONHandler[CreateBody](), controller.Create)
 
-			router.Use(middlewares.URIHandler[LangUri]())
+			router.Use(middlewares.URIHandler[LangUri](), controller.LoaderHandler())
 			{
 				router.PATCH("/:isoCode", middlewares.JSONHandler[UpdateBody](), controller.Update)
 				router.DELETE("/:isoCode", controller.Delete)
