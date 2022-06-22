@@ -8,6 +8,10 @@ import (
 	"github.com/skatekrak/scribe/formatter"
 )
 
+const BODY = "body"
+const QUERY = "query"
+const URI = "uri"
+
 func JSONHandler[T any]() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var body T
