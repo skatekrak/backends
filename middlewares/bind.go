@@ -53,3 +53,26 @@ func URIHandler[T any]() gin.HandlerFunc {
 		ctx.Next()
 	}
 }
+
+func QueryHandler[T any]() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var query T
+		if err := ctx.BindQuery(&query); err != nil {
+			if verr, ok := err.(validator.ValidationErrors); ok {
+				f := formatter.NewJSONFormatter()
+				ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+					"error": f.Simple(verr),
+				})
+				return
+			}
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"message": "Couldn't parse or format error",
+				"error":   err.Error(),
+			})
+			return
+		}
+
+		ctx.Set("query", query)
+		ctx.Next()
+	}
+}
