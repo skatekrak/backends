@@ -1,28 +1,21 @@
 package middlewares
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-type authHeader struct {
-	Authorization string `header:"Authorization" binding:"required"`
-}
+func Authorization(apiKey string) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		authorization := ctx.Get("Authorization")
 
-func Authorization(apiKey string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var header authHeader
-		if err := c.BindHeader(&header); err != nil {
-			c.Error(err)
-			return
+		if authorization == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "Missing Authorization")
 		}
 
-		if header.Authorization != apiKey {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"error": "Wait, that's illegal",
-			})
-			return
+		if authorization != apiKey {
+			return fiber.NewError(fiber.StatusForbidden, "Wait, that's illegal")
 		}
+
+		return ctx.Next()
 	}
 }

@@ -13,9 +13,15 @@ func NewService(db *gorm.DB) *Service {
 	return &Service{db}
 }
 
-func (s *Service) FindAll() ([]model.Source, error) {
+func (s *Service) FindAll(types []string) ([]model.Source, error) {
 	var sources []model.Source
-	err := s.db.Find(&sources).Error
+	query := s.db
+
+	if len(types) > 0 {
+		query = query.Where("source_type IN ?", types)
+	}
+
+	err := query.Find(&sources).Error
 	return sources, err
 }
 

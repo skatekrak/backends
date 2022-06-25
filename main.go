@@ -3,13 +3,13 @@ package main
 import (
 	"log"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/lang"
-	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
-	"github.com/skatekrak/scribe/source"
 )
 
 func main() {
@@ -27,12 +27,19 @@ func main() {
 		log.Fatalf("unable to migrate database: %s", err)
 	}
 
-	r := gin.Default()
-	r.Use(middlewares.ErrorHandler())
-	lang.Route(r, db)
-	source.Route(r, db)
+	app := fiber.New()
+	app.Use(logger.New())
+	app.Use(recover.New())
+	lang.Route(app, db)
 
-	if err := r.Run(); err != nil {
-		log.Fatalf("error: %s", err.Error())
-	}
+	// r := gin.Default()
+	// r.Use(middlewares.ErrorHandler())
+	// lang.Route(r, db)
+	// source.Route(r, db)
+
+	// if err := r.Run(); err != nil {
+	// 	log.Fatalf("error: %s", err.Error())
+	// }
+
+	app.Listen(":8080")
 }

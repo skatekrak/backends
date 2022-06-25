@@ -3,14 +3,14 @@ package lang
 import (
 	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/middlewares"
 	"gorm.io/gorm"
 )
 
 type CreateBody struct {
-	IsoCode  string `json:"isoCode" binding:"required,len=2"`
-	ImageURL string `json:"imageURL" binding:"required"`
+	IsoCode  string `json:"isoCode" validate:"required,len=2"`
+	ImageURL string `json:"imageURL" validate:"required"`
 }
 
 type UpdateBody struct {
@@ -21,24 +21,15 @@ type LangUri struct {
 	IsoCode string `uri:"isoCode" binding:"required"`
 }
 
-func Route(r *gin.Engine, db *gorm.DB) {
+func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
 	controller := NewController(db)
 	auth := middlewares.Authorization(apiKey)
 
-	router := r.Group("/langs")
-	{
+	router := app.Group("/langs")
+	router.Get("", controller.FindAll)
 
-		router.GET("", controller.FindAll)
-		router.Use(auth)
-		{
-			router.POST("", middlewares.JSONHandler[CreateBody](), controller.Create)
-
-			router.Use(middlewares.URIHandler[LangUri](), controller.LoaderHandler())
-			{
-				router.PATCH("/:isoCode", middlewares.JSONHandler[UpdateBody](), controller.Update)
-				router.DELETE("/:isoCode", controller.Delete)
-			}
-		}
-	}
+	router.Post("", auth, middlewares.JSONHandler[CreateBody](), controller.Create)
+	router.Patch("/:isoCode", auth, controller.LoaderHandler(), middlewares.JSONHandler[UpdateBody](), controller.Update)
+	router.Delete("/:isoCode", auth, controller.LoaderHandler(), controller.Delete)
 }

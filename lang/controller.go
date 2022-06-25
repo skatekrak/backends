@@ -1,9 +1,7 @@
 package lang
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
 	"gorm.io/gorm"
@@ -19,43 +17,36 @@ func NewController(db *gorm.DB) *Controller {
 	return &Controller{s: NewService(db)}
 }
 
-func (c *Controller) LoaderHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		uri := ctx.Keys[middlewares.URI].(LangUri)
+func (c *Controller) LoaderHandler() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		isoCode := ctx.Params("isoCode")
 
-		lang, err := c.s.Get(uri.IsoCode)
+		lang, err := c.s.Get(isoCode)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"message": "Lang not found",
-			})
-			return
+			return fiber.NewError(fiber.StatusNotFound, "Lang not found")
 		}
 
-		ctx.Set(context_lang, lang)
-		ctx.Next()
+		ctx.Locals(context_lang, lang)
+		return ctx.Next()
 	}
-}
 
-func (c *Controller) FindAll(ctx *gin.Context) {
+}
+func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 	langs, err := c.s.FindAll()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	ctx.JSON(http.StatusOK, langs)
+	return ctx.Status(fiber.StatusOK).JSON(langs)
 }
 
-func (c *Controller) Create(ctx *gin.Context) {
-	body := ctx.Keys[middlewares.BODY].(CreateBody)
+func (c *Controller) Create(ctx *fiber.Ctx) error {
+	body := ctx.Locals(middlewares.BODY).(CreateBody)
 
 	if _, err := c.s.Get(body.IsoCode); err == nil {
-		ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
+		return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"message": "isoCode already used",
 		})
-		return
 	}
 
 	lang := model.Lang{
@@ -64,35 +55,32 @@ func (c *Controller) Create(ctx *gin.Context) {
 	}
 
 	if err := c.s.Create(&lang); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
-		return
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	ctx.JSON(http.StatusOK, lang)
+	return ctx.Status(fiber.StatusOK).JSON(lang)
 }
 
-func (c *Controller) Update(ctx *gin.Context) {
-	lang := ctx.Keys[context_lang].(model.Lang)
-	body := ctx.Keys[middlewares.BODY].(UpdateBody)
+func (c *Controller) Update(ctx *fiber.Ctx) error {
+	lang := ctx.Locals(context_lang).(model.Lang)
+	body := ctx.Locals(middlewares.BODY).(UpdateBody)
 
 	lang.ImageURL = body.ImageURL
 	if err := c.s.Update(&lang); err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
-		return
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	ctx.JSON(http.StatusOK, lang)
+	return ctx.Status(fiber.StatusOK).JSON(lang)
 }
 
-func (c *Controller) Delete(ctx *gin.Context) {
-	lang := ctx.Keys[context_lang].(model.Lang)
+func (c *Controller) Delete(ctx *fiber.Ctx) error {
+	lang := ctx.Locals(context_lang).(model.Lang)
 
 	if err := c.s.Delete(&lang); err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
-		return
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	return ctx.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"message": "Lang deleted",
 	})
 }

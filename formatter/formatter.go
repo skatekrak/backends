@@ -3,11 +3,9 @@ package formatter
 import (
 	"fmt"
 	"log"
-	"reflect"
 	"strings"
 
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 )
 
 type JSONFormatter struct{}
@@ -15,15 +13,15 @@ type JSONFormatter struct{}
 // NewJSONFormatter will create a new JSON formatter and register a custom tag
 // name func to gin's validator
 func NewJSONFormatter() *JSONFormatter {
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterTagNameFunc(func(fld reflect.StructField) string {
-			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
-			if name == "-" {
-				return ""
-			}
-			return name
-		})
-	}
+	// if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+	// 	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
+	// 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+	// 		if name == "-" {
+	// 			return ""
+	// 		}
+	// 		return name
+	// 	})
+	// }
 
 	return &JSONFormatter{}
 }
@@ -67,10 +65,6 @@ func msgForTagAndParam(tag, param string) (string, bool) {
 }
 
 func msgForTag(fe validator.FieldError) string {
-	log.Println(fe)
-
-	log.Println("tag", fe.Tag())
-
 	if msg, ok := msgForTagAndParam(fe.Tag(), fe.Param()); ok {
 		return msg
 	}
@@ -96,6 +90,12 @@ func (JSONFormatter) Simple(verr validator.ValidationErrors) map[string]string {
 	errs := make(map[string]string)
 
 	for _, f := range verr {
+		log.Println("--err--")
+		log.Println("field", f.Field())
+		log.Println("param", f.Param())
+		log.Println("tag", f.Tag())
+
+
 		errs[f.Field()] = msgForTag(f)
 	}
 

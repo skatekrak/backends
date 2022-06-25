@@ -21,7 +21,7 @@ func (s *Service) FindAll() ([]model.Lang, error) {
 
 func (s *Service) Get(isoCode string) (model.Lang, error) {
 	var lang model.Lang
-	err := s.db.Where("iso_code = ?", isoCode).First(&lang).Error
+	err := s.db.Unscoped().Where("iso_code = ?", isoCode).First(&lang).Error
 	return lang, err
 }
 
