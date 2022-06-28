@@ -3,7 +3,7 @@ package source
 import (
 	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/middlewares"
 	"gorm.io/gorm"
 )
@@ -13,18 +13,18 @@ type FindAllQuery struct {
 }
 
 type CreateBody struct {
-	ChannelID     string `json:"channelID" binding:"required"`
-	LangIsoCode   string `json:"lang" binding:"required"`
+	ChannelID     string `json:"channelID" validate:"required"`
+	LangIsoCode   string `json:"lang" validate:"required"`
 	IsSkateSource bool   `json:"isSkateSource"`
-	Type          string `json:"type" binding:"oneof=youtube vimeo feedly"`
+	Type          string `json:"type" validate:"oneof=youtube vimeo feedly"`
 }
 
 type SourceURI struct {
-	SourceID string `uri:"sourceID" binding:"required"`
+	SourceID string `uri:"sourceID" validate:"required"`
 }
 
 type UpdateBody struct {
-	LangIsoCode   string `json:"lang" binding:"required"`
+	LangIsoCode   string `json:"lang" validate:"required"`
 	IsSkateSource bool   `json:"isSkateSource"`
 	Title         string `json:"title"`
 	Description   string `json:"description"`
@@ -34,24 +34,15 @@ type UpdateBody struct {
 	WebsiteURL    string `json:"websiteURL"`
 }
 
-func Route(r *gin.Engine, db *gorm.DB) {
+func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
 	controller := NewController(db)
 	auth := middlewares.Authorization(apiKey)
 
-	router := r.Group("sources")
-	{
-		router.GET("", middlewares.QueryHandler[FindAllQuery](), controller.FindAll)
-		router.Use(auth)
-		{
-			router.POST("", middlewares.JSONHandler[CreateBody](), controller.Create)
+	router := app.Group("sources")
 
-			router.Use(middlewares.URIHandler[SourceURI](), controller.LoaderHandler())
-			{
-
-				router.PATCH("/:sourceID", middlewares.JSONHandler[UpdateBody](), controller.Update)
-				router.DELETE("/:sourceID", controller.Delete)
-			}
-		}
-	}
+	router.Get("", middlewares.QueryHandler[FindAllQuery](), controller.FindAll)
+	router.Post("", auth, middlewares.JSONHandler[CreateBody](), controller.Create)
+	router.Patch("/:sourceID", auth, controller.LoaderHandler(), middlewares.JSONHandler[UpdateBody](), controller.Update)
+	router.Delete("/:sourceID", auth, controller.LoaderHandler(), controller.Delete)
 }

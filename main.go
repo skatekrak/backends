@@ -10,6 +10,7 @@ import (
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/model"
+	"github.com/skatekrak/scribe/source"
 )
 
 func main() {
@@ -31,15 +32,7 @@ func main() {
 	app.Use(logger.New())
 	app.Use(recover.New())
 	lang.Route(app, db)
-
-	// r := gin.Default()
-	// r.Use(middlewares.ErrorHandler())
-	// lang.Route(r, db)
-	// source.Route(r, db)
-
-	// if err := r.Run(); err != nil {
-	// 	log.Fatalf("error: %s", err.Error())
-	// }
+	source.Route(app, db)
 
 	app.Listen(":8080")
 }

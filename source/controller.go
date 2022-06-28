@@ -1,10 +1,9 @@
 package source
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
@@ -26,53 +25,50 @@ func NewController(db *gorm.DB) *Controller {
 	}
 }
 
-func (c *Controller) LoaderHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		uri := ctx.Keys[middlewares.URI].(SourceURI)
+func (c *Controller) LoaderHandler() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		sourceID := ctx.Params("sourceID")
 
-		source, err := c.s.Get(uri.SourceID)
+		source, err := c.s.Get(sourceID)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"message": "Source not found",
+			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "Lang not founc",
 			})
-			return
 		}
 
-		ctx.Set(context_source, source)
-		ctx.Next()
+		ctx.Locals(context_source, source)
+		return ctx.Next()
 	}
 }
 
-func (c *Controller) FindAll(ctx *gin.Context) {
-	query := ctx.Keys[middlewares.QUERY].(FindAllQuery)
+func (c *Controller) FindAll(ctx *fiber.Ctx) error {
+	query := ctx.Locals(middlewares.QUERY).(FindAllQuery)
 
 	sources, err := c.s.FindAll(query.Types)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	ctx.JSON(http.StatusOK, sources)
+	return ctx.Status(fiber.StatusOK).JSON(sources)
 }
 
-func (c *Controller) Create(ctx *gin.Context) {
-	body := ctx.Keys[middlewares.BODY].(CreateBody)
+func (c *Controller) Create(ctx *fiber.Ctx) error {
+	body := ctx.Locals(middlewares.BODY).(CreateBody)
 
 	if _, err := c.s.GetBySourceID(body.ChannelID); err == nil {
-		ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
+		return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"message": "This youtube channel is already added",
 		})
-		return
 	}
 
 	nextOrder, err := c.s.GetNextOrder()
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Couldn't process the next order",
 			"error":   err.Error(),
 		})
-		return
 	}
 
 	// TODO: fetch youtube info
@@ -86,40 +82,37 @@ func (c *Controller) Create(ctx *gin.Context) {
 	}
 
 	if err := c.s.Create(&source); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Couldn't create the source",
 			"error":   err.Error(),
 		})
-		return
 	}
 
-	ctx.JSON(http.StatusOK, source)
+	return ctx.Status(fiber.StatusOK).JSON(source)
 }
 
-func (c *Controller) Update(ctx *gin.Context) {
-	body := ctx.Keys[middlewares.BODY].(UpdateBody)
-	source := ctx.Keys[context_source].(model.Source)
+func (c *Controller) Update(ctx *fiber.Ctx) error {
+	body := ctx.Locals(middlewares.BODY).(UpdateBody)
+	source := ctx.Locals(context_source).(model.Source)
 
-	log.Println(body)
-
-	ctx.JSON(http.StatusOK, gin.H{
+	// TODO
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"body":   body,
 		"source": source,
 	})
 }
 
-func (c *Controller) Delete(ctx *gin.Context) {
-	source := ctx.Keys[context_source].(model.Source)
+func (c *Controller) Delete(ctx *fiber.Ctx) error {
+	source := ctx.Locals(context_source).(model.Source)
 
 	if err := c.s.Delete(&source); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Couldn't delete this source",
 			"error":   err.Error(),
 		})
-		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	return ctx.Status(http.StatusOK).JSON(fiber.Map{
 		"message": "Source deleted",
 	})
 }

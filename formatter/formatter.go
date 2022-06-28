@@ -10,19 +10,7 @@ import (
 
 type JSONFormatter struct{}
 
-// NewJSONFormatter will create a new JSON formatter and register a custom tag
-// name func to gin's validator
 func NewJSONFormatter() *JSONFormatter {
-	// if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-	// 	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
-	// 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
-	// 		if name == "-" {
-	// 			return ""
-	// 		}
-	// 		return name
-	// 	})
-	// }
-
 	return &JSONFormatter{}
 }
 
@@ -94,7 +82,6 @@ func (JSONFormatter) Simple(verr validator.ValidationErrors) map[string]string {
 		log.Println("field", f.Field())
 		log.Println("param", f.Param())
 		log.Println("tag", f.Tag())
-
 
 		errs[f.Field()] = msgForTag(f)
 	}
