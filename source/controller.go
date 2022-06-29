@@ -108,6 +108,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 		LangIsoCode: body.LangIsoCode,
 		SourceID:    sourceID,
 		Title:       data.Title,
+		ShortTitle:  data.Title,
 		Description: data.Description,
 		CoverURL:    data.CoverURL,
 		IconURL:     data.IconURL,
