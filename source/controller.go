@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/fetchers"
+	"github.com/skatekrak/scribe/helpers"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
@@ -130,11 +131,26 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(UpdateBody)
 	source := ctx.Locals(context_source).(model.Source)
 
-	// TODO
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"body":   body,
-		"source": source,
-	})
+	if body.LangIsoCode != nil {
+		source.LangIsoCode = *body.LangIsoCode
+	}
+
+	source.LangIsoCode = helpers.SetIfNotNil(body.LangIsoCode, source.LangIsoCode)
+	source.SkateSource = helpers.SetIfNotNil(body.IsSkateSource, source.SkateSource)
+	source.Title = helpers.SetIfNotNil(body.Title, source.Title)
+	source.ShortTitle = helpers.SetIfNotNil(body.ShortTitle, source.ShortTitle)
+	source.Description = helpers.SetIfNotNil(body.Description, source.Description)
+	source.IconURL = helpers.SetIfNotNil(body.IconURL, source.IconURL)
+	source.CoverURL = helpers.SetIfNotNil(body.CoverURL, source.CoverURL)
+	source.WebsiteURL = helpers.SetIfNotNil(body.WebsiteURL, source.WebsiteURL)
+
+	if err := c.s.Update(&source); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(source)
 }
 
 func (c *Controller) Delete(ctx *fiber.Ctx) error {

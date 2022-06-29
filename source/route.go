@@ -25,14 +25,14 @@ type SourceURI struct {
 }
 
 type UpdateBody struct {
-	LangIsoCode   string `json:"lang" validate:"required"`
-	IsSkateSource bool   `json:"isSkateSource"`
-	Title         string `json:"title"`
-	Description   string `json:"description"`
-	ShortTitle    string `json:"shortTitle"`
-	IconURL       string `json:"iconURL"`
-	CoverURL      string `json:"coverURL"`
-	WebsiteURL    string `json:"websiteURL"`
+	LangIsoCode   *string `json:"lang"`
+	IsSkateSource *bool   `json:"isSkateSource"`
+	Title         *string `json:"title"`
+	ShortTitle    *string `json:"shortTitle"`
+	Description   *string `json:"description"`
+	IconURL       *string `json:"iconURL"`
+	CoverURL      *string `json:"coverURL"`
+	WebsiteURL    *string `json:"websiteURL"`
 }
 
 func Route(app *fiber.App, db *gorm.DB) {
