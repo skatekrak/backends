@@ -1,6 +1,7 @@
 package source
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -83,7 +84,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 
 	if _, err := c.s.GetBySourceID(sourceID); err == nil {
 		return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{
-			"message": "This youtube channel is already added",
+			"message": fmt.Sprintf("This %s source is already added", fetcher.Type()),
 		})
 	}
 

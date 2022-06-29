@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/fetchers"
+	"github.com/skatekrak/scribe/fetchers/vimeo"
 	"github.com/skatekrak/scribe/fetchers/youtube"
 	"github.com/skatekrak/scribe/middlewares"
 	"gorm.io/gorm"
@@ -37,11 +38,11 @@ type UpdateBody struct {
 
 func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
-	youtubeApiKey := os.Getenv("YOUTUBE_API_KEY")
 
-	youtubeFetcher := youtube.NewYoutubeFetcher(youtubeApiKey)
+	youtubeFetcher := youtube.NewYoutubeFetcher(os.Getenv("YOUTUBE_API_KEY"))
+	vimeoFetcher := vimeo.NewVimeoSourceFetcher(os.Getenv("VIMEO_API_KEY"))
 
-	controller := NewController(db, []fetchers.SourceFetcher{youtubeFetcher})
+	controller := NewController(db, []fetchers.SourceFetcher{youtubeFetcher, vimeoFetcher})
 	auth := middlewares.Authorization(apiKey)
 
 	router := app.Group("sources")
