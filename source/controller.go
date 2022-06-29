@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
@@ -14,14 +15,16 @@ import (
 const context_source = "source"
 
 type Controller struct {
-	s  *Service
-	ls *lang.Service
+	s        *Service
+	ls       *lang.Service
+	fetchers []fetchers.SourceFetcher
 }
 
-func NewController(db *gorm.DB) *Controller {
+func NewController(db *gorm.DB, fetchers []fetchers.SourceFetcher) *Controller {
 	return &Controller{
-		s:  NewService(db),
-		ls: lang.NewService(db),
+		s:        NewService(db),
+		ls:       lang.NewService(db),
+		fetchers: fetchers,
 	}
 }
 
@@ -57,7 +60,26 @@ func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 func (c *Controller) Create(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(CreateBody)
 
-	if _, err := c.s.GetBySourceID(body.ChannelID); err == nil {
+	var sourceID string
+	var fetcher fetchers.SourceFetcher
+
+	for _, f := range c.fetchers {
+		if f.IsFromSource(body.URL) {
+			if s, err := f.GetSourceID(body.URL); err == nil {
+				sourceID = s
+				fetcher = f
+				break
+			}
+		}
+	}
+
+	if sourceID == "" {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "This url seems invalid or not supported",
+		})
+	}
+
+	if _, err := c.s.GetBySourceID(sourceID); err == nil {
 		return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"message": "This youtube channel is already added",
 		})
@@ -71,14 +93,24 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: fetch youtube info
+	data, err := fetcher.Fetch(body.URL)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
 
 	source := model.Source{
 		Order:       nextOrder,
-		SourceType:  body.Type,
+		SourceType:  fetcher.Type(),
 		SkateSource: body.IsSkateSource,
 		LangIsoCode: body.LangIsoCode,
-		SourceID:    body.ChannelID,
+		SourceID:    sourceID,
+		Title:       data.Title,
+		Description: data.Description,
+		CoverURL:    data.CoverURL,
+		IconURL:     data.IconURL,
+		WebsiteURL:  body.URL,
 	}
 
 	if err := c.s.Create(&source); err != nil {

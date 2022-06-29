@@ -4,19 +4,20 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/skatekrak/scribe/fetchers"
+	"github.com/skatekrak/scribe/fetchers/youtube"
 	"github.com/skatekrak/scribe/middlewares"
 	"gorm.io/gorm"
 )
 
 type FindAllQuery struct {
-	Types []string `form:"types[]" binding:"dive,eq=vimeo|eq=youtube|eq=rss"`
+	Types []string `form:"types[]" validate:"dive,eq=vimeo|eq=youtube|eq=rss"`
 }
 
 type CreateBody struct {
-	ChannelID     string `json:"channelID" validate:"required"`
+	URL           string `json:"url" validated:"required"`
 	LangIsoCode   string `json:"lang" validate:"required"`
 	IsSkateSource bool   `json:"isSkateSource"`
-	Type          string `json:"type" validate:"oneof=youtube vimeo feedly"`
 }
 
 type SourceURI struct {
@@ -36,7 +37,11 @@ type UpdateBody struct {
 
 func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
-	controller := NewController(db)
+	youtubeApiKey := os.Getenv("YOUTUBE_API_KEY")
+
+	youtubeFetcher := youtube.NewYoutubeFetcher(youtubeApiKey)
+
+	controller := NewController(db, []fetchers.SourceFetcher{youtubeFetcher})
 	auth := middlewares.Authorization(apiKey)
 
 	router := app.Group("sources")
