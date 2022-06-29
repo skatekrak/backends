@@ -63,6 +63,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 	var sourceID string
 	var fetcher fetchers.SourceFetcher
 
+	// Run throught the fetchers to find the one for the given url
 	for _, f := range c.fetchers {
 		if f.IsFromSource(body.URL) {
 			if s, err := f.GetSourceID(body.URL); err == nil {

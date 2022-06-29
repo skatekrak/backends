@@ -31,5 +31,5 @@ type Source struct {
 	SkateSource bool
 	WebsiteURL  string
 	PublishedAt time.Time
-	SourceID    string `gorm:"unique,index"`
+	SourceID    string `gorm:"unique,index"` // Vimeo, Youtube or Feedly ID, depending on the type
 }
