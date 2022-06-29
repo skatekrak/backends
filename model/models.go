@@ -18,7 +18,7 @@ type Lang struct {
 
 type Source struct {
 	gorm.Model
-	RefreshedAt time.Time
+	RefreshedAt *time.Time
 	Order       int `gorm:"index"`
 	SourceType  string
 	LangIsoCode string
@@ -28,8 +28,8 @@ type Source struct {
 	IconURL     string
 	CoverURL    string
 	Description string
-	SkateSource bool
+	SkateSource bool `gorm:"default:true"`
 	WebsiteURL  string
-	PublishedAt time.Time
+	PublishedAt *time.Time
 	SourceID    string `gorm:"unique,index"` // Vimeo, Youtube or Feedly ID, depending on the type
 }
