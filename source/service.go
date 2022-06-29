@@ -58,5 +58,5 @@ func (s *Service) Update(source *model.Source) error {
 }
 
 func (s *Service) Delete(source *model.Source) error {
-	return s.db.Delete(&source).Error
+	return s.db.Unscoped().Delete(&source).Error
 }
