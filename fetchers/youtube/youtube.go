@@ -47,6 +47,7 @@ func (y YoutubeSourceFetcher) Fetch(url string) (fetchers.FetchResponse, error) 
 			Description: item.Snippet.Description,
 			IconURL:     item.Snippet.Thumbnails.Default.URL,
 			CoverURL:    item.BrandingSettings.Image.BannerExternalURL,
+			PublishedAt: item.Snippet.PublishedAt,
 		}, nil
 	}
 	return fetchers.FetchResponse{}, errors.New("weird, no items")

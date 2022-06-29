@@ -113,6 +113,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 		CoverURL:    data.CoverURL,
 		IconURL:     data.IconURL,
 		WebsiteURL:  body.URL,
+		PublishedAt: &data.PublishedAt,
 	}
 
 	if err := c.s.Create(&source); err != nil {

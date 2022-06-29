@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -29,7 +30,7 @@ type ChannelItemSnippetThumbnails struct {
 type ChannelItemSnippet struct {
 	Title       string                       `json:"title"`
 	Description string                       `json:"description"`
-	PublishedAt string                       `json:"publishedAt"`
+	PublishedAt time.Time                    `json:"publishedAt"`
 	Country     string                       `json:"country"`
 	Thumbnails  ChannelItemSnippetThumbnails `json:"thumbnails"`
 }
