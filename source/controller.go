@@ -131,10 +131,6 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(UpdateBody)
 	source := ctx.Locals(context_source).(model.Source)
 
-	if body.LangIsoCode != nil {
-		source.LangIsoCode = *body.LangIsoCode
-	}
-
 	source.LangIsoCode = helpers.SetIfNotNil(body.LangIsoCode, source.LangIsoCode)
 	source.SkateSource = helpers.SetIfNotNil(body.IsSkateSource, source.SkateSource)
 	source.Title = helpers.SetIfNotNil(body.Title, source.Title)
