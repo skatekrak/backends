@@ -41,11 +41,11 @@ func JSONHandler[T interface{}]() fiber.Handler {
 	}
 }
 
-func QueryHandler[T any]() fiber.Handler {
+func QueryHandler[T interface{}]() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		query := new(T)
+		var query T
 
-		if err := ctx.QueryParser(query); err != nil {
+		if err := ctx.QueryParser(&query); err != nil {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": err.Error(),
 			})
