@@ -17,3 +17,5 @@
 /*.db
 /.vscode
 .DS_Store
+/gowatch.yml
+/bin
