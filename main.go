@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("unable to open database: %s", err)
 	}
 
-	if err = db.AutoMigrate(&model.Lang{}, &model.Source{}); err != nil {
+	if err = db.AutoMigrate(&model.Lang{}, &model.Source{}, &model.Content{}); err != nil {
 		log.Fatalf("unable to migrate database: %s", err)
 	}
 
