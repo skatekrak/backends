@@ -2,6 +2,7 @@ package content
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/skatekrak/scribe/model"
 	"gorm.io/gorm"
@@ -18,18 +19,26 @@ func NewService(db *gorm.DB) *Service {
 func (s *Service) Find(sourceTypes []string, page int) ([]model.Content, error) {
 	var contents []model.Content
 
-	err := s.db.Find(&contents).
-		Order("\"published_at desc\"").
-		Joins(fmt.Sprintf("left join contents on sources.source_type in %s", sourceTypes)).
-		Limit(50).
-		Offset((page - 1) * 50).
-		Error
+	log.Println("sourceTypes", sourceTypes)
 
-	if err != nil {
-		return contents, err
+	tx := s.db.Order("\"published_at desc\"").Session(&gorm.Session{})
+
+	if len(sourceTypes) > 0 {
+		tx = tx.
+			Joins("JOIN sources ON sources.id = contents.source_id").
+			Where("sources.source_type in ?", sourceTypes).
+			Session(&gorm.Session{})
 	}
 
-	return contents, err
+	tx = tx.Limit(50).
+		Offset((page - 1) * 50).
+		Find(&contents)
+
+	if tx.Error != nil {
+		return contents, tx.Error
+	}
+
+	return contents, nil
 }
 
 func (s *Service) FindFromSource(sourceID string, page int) ([]model.Content, error) {

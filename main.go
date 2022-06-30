@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
+	"github.com/skatekrak/scribe/content"
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/model"
@@ -33,6 +34,7 @@ func main() {
 	app.Use(recover.New())
 	lang.Route(app, db)
 	source.Route(app, db)
+	content.Route(app, db)
 
 	app.Listen(":8080")
 }
