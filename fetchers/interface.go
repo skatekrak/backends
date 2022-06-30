@@ -10,9 +10,20 @@ type FetchResponse struct {
 	PublishedAt time.Time
 }
 
+type RefreshResponse struct {
+	Title          string
+	PublishedAt    time.Time
+	Description    string // Or Summary
+	RawDescription string // or RawSummary
+	ThumbnailURL   string
+	ContentID      string // or VideoID
+	ContentURL     string
+}
+
 type SourceFetcher interface {
 	Type() string
 	IsFromSource(url string) bool
 	Fetch(url string) (FetchResponse, error)
 	GetSourceID(url string) (string, error)
+	RefreshSource(sourceID string) ([]RefreshResponse, error)
 }

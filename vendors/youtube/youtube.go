@@ -17,22 +17,25 @@ type PageInfo struct {
 	ResultsPerPage int `json:"resultsPerPage"`
 }
 
-type ChannelItemSnippetThumbnail struct {
+type SnippetThumbnail struct {
 	URL    string `json:"url"`
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 }
 
-type ChannelItemSnippetThumbnails struct {
-	Default ChannelItemSnippetThumbnail `json:"default"`
+type SnippetThumbnails struct {
+	Default  SnippetThumbnail  `json:"default"`
+	Medium   *SnippetThumbnail `json:"medium"`
+	High     *SnippetThumbnail `json:"high"`
+	Standard *SnippetThumbnail `json:"standard"`
 }
 
 type ChannelItemSnippet struct {
-	Title       string                       `json:"title"`
-	Description string                       `json:"description"`
-	PublishedAt time.Time                    `json:"publishedAt"`
-	Country     string                       `json:"country"`
-	Thumbnails  ChannelItemSnippetThumbnails `json:"thumbnails"`
+	Title       string            `json:"title"`
+	Description string            `json:"description"`
+	PublishedAt time.Time         `json:"publishedAt"`
+	Country     string            `json:"country"`
+	Thumbnails  SnippetThumbnails `json:"thumbnails"`
 }
 
 type ChannelBrandingSettingsImage struct {
@@ -51,28 +54,28 @@ type ChannelItem struct {
 	BrandingSettings ChannelBrandingSettings `json:"brandingSettings"`
 }
 
-type FetchChannelResponse struct {
-	Kind     string        `json:"kind"`
-	Etag     string        `json:"etag"`
-	PageInfo PageInfo      `json:"pageInfo"`
-	Items    []ChannelItem `json:"items"`
+type FetchResponse[T any] struct {
+	Kind     string   `json:"kind"`
+	Etag     string   `json:"etag"`
+	PageInfo PageInfo `json:"pageInfo"`
+	Items    []T      `json:"items"`
 }
 
-func FetchChannel(channelID, accessToken string) (FetchChannelResponse, error) {
+func FetchChannel(channelID, accessToken string) (FetchResponse[ChannelItem], error) {
 	response, err := http.Get(fmt.Sprintf("https://www.googleapis.com/youtube/v3/channels?part=snippet,brandingSettings&id=%s&key=%s", channelID, accessToken))
 
 	if err != nil {
-		return FetchChannelResponse{}, err
+		return FetchResponse[ChannelItem]{}, err
 	}
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return FetchChannelResponse{}, err
+		return FetchResponse[ChannelItem]{}, err
 	}
 
-	var data FetchChannelResponse
+	var data FetchResponse[ChannelItem]
 	if err := json.Unmarshal(responseData, &data); err != nil {
-		return FetchChannelResponse{}, err
+		return FetchResponse[ChannelItem]{}, err
 	}
 
 	return data, nil
