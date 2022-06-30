@@ -19,6 +19,10 @@ func (v VimeoSourceFetcher) Type() string {
 	return "vimeo"
 }
 
+func (v VimeoSourceFetcher) ContentType() string {
+	return "video"
+}
+
 func (v VimeoSourceFetcher) IsFromSource(url string) bool {
 	return vimeo.IsVimeoUser(url)
 }

@@ -42,8 +42,9 @@ type Content struct {
 	CreatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	SourceID     string
+	SourceID     uint
 	ContentID    string `gorm:"unique,index"` // Youtube or Vimeo ID or Feedly ID
+	PublishedAt  time.Time
 	Title        string
 	ContentURL   string // Youtube or Vimeo video url or article URL
 	ThumbnailURL string

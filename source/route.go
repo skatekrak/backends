@@ -51,4 +51,6 @@ func Route(app *fiber.App, db *gorm.DB) {
 	router.Post("", auth, middlewares.JSONHandler[CreateBody](), controller.Create)
 	router.Patch("/:sourceID", auth, controller.LoaderHandler(), middlewares.JSONHandler[UpdateBody](), controller.Update)
 	router.Delete("/:sourceID", auth, controller.LoaderHandler(), controller.Delete)
+
+	router.Post("/:sourceID/refresh", auth, controller.LoaderHandler(), controller.RefreshSource)
 }

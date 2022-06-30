@@ -20,6 +20,10 @@ func (y YoutubeSourceFetcher) Type() string {
 	return "youtube"
 }
 
+func (y YoutubeSourceFetcher) ContentType() string {
+	return "video"
+}
+
 func (y YoutubeSourceFetcher) IsFromSource(url string) bool {
 	// Check if URL is of a youtube channel
 	return youtube.IsYoutubeChannel(url)

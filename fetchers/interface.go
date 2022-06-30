@@ -22,6 +22,7 @@ type RefreshResponse struct {
 
 type SourceFetcher interface {
 	Type() string
+	ContentType() string
 	IsFromSource(url string) bool
 	Fetch(url string) (FetchResponse, error)
 	GetSourceID(url string) (string, error)

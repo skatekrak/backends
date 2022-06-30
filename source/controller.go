@@ -1,10 +1,12 @@
 package source
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/skatekrak/scribe/content"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/helpers"
 	"github.com/skatekrak/scribe/lang"
@@ -19,6 +21,7 @@ const context_source = "source"
 type Controller struct {
 	s        *Service
 	ls       *lang.Service
+	cs       *content.Service
 	fetchers []fetchers.SourceFetcher
 }
 
@@ -26,6 +29,7 @@ func NewController(db *gorm.DB, fetchers []fetchers.SourceFetcher) *Controller {
 	return &Controller{
 		s:        NewService(db),
 		ls:       lang.NewService(db),
+		cs:       content.NewService(db),
 		fetchers: fetchers,
 	}
 }
@@ -163,4 +167,52 @@ func (c *Controller) Delete(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{
 		"message": "Source deleted",
 	})
+}
+
+func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
+	source := ctx.Locals(context_source).(model.Source)
+
+	var fetcher fetchers.SourceFetcher
+	for _, f := range c.fetchers {
+		if source.SourceType == f.Type() {
+			fetcher = f
+			break
+		}
+	}
+
+	contents, err := fetcher.RefreshSource(source.SourceID)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	formattedContents := []*model.Content{}
+
+	for _, content := range contents {
+		// Only add content not already here
+		if _, err := c.cs.FindOneByContentID(content.ContentID); err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				formattedContents = append(formattedContents, &model.Content{
+					SourceID:     source.ID,
+					ContentID:    content.ContentID,
+					PublishedAt:  content.PublishedAt,
+					Title:        content.Title,
+					ThumbnailURL: content.ThumbnailURL,
+					ContentURL:   content.ContentURL,
+					RawSummary:   content.RawDescription,
+					Summary:      content.Description,
+					Type:         fetcher.ContentType(),
+				})
+			}
+		}
+	}
+
+	if err := c.cs.AddMany(formattedContents); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(formattedContents)
 }
