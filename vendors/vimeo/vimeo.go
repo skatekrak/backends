@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 	"time"
@@ -57,8 +56,6 @@ func FetchChannel(userID, apiKey string) (FetchChannelResponse, error) {
 	if err := json.Unmarshal(responseData, &data); err != nil {
 		return FetchChannelResponse{}, err
 	}
-
-	log.Println("data from vimeo", data)
 
 	return data, err
 }
