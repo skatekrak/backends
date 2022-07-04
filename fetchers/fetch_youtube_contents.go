@@ -3,7 +3,7 @@ package fetchers
 import (
 	"fmt"
 
-	"github.com/skatekrak/scribe/vendors/clients/youtube"
+	"github.com/skatekrak/scribe/clients/youtube"
 )
 
 func (fe *Fetcher) FetchYoutubeChannelContents(channelID string) ([]ContentFetchData, error) {

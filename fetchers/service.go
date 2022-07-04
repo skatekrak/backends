@@ -3,9 +3,9 @@ package fetchers
 import (
 	"time"
 
-	"github.com/skatekrak/scribe/vendors/clients/feedly"
-	"github.com/skatekrak/scribe/vendors/clients/vimeo"
-	"github.com/skatekrak/scribe/vendors/clients/youtube"
+	"github.com/skatekrak/scribe/clients/feedly"
+	"github.com/skatekrak/scribe/clients/vimeo"
+	"github.com/skatekrak/scribe/clients/youtube"
 )
 
 // Abstract representation of a Source from a channel

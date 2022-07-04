@@ -7,14 +7,14 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/skatekrak/scribe/clients/vimeo"
+	"github.com/skatekrak/scribe/clients/youtube"
 	"github.com/skatekrak/scribe/content"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/helpers"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
-	"github.com/skatekrak/scribe/vendors/clients/vimeo"
-	"github.com/skatekrak/scribe/vendors/clients/youtube"
 	"gorm.io/gorm"
 )
 

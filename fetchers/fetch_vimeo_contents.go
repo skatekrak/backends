@@ -3,7 +3,7 @@ package fetchers
 import (
 	"fmt"
 
-	"github.com/skatekrak/scribe/vendors/clients/vimeo"
+	"github.com/skatekrak/scribe/clients/vimeo"
 )
 
 func (fe *Fetcher) FetchVimeoChannelContents(userID string) ([]ContentFetchData, error) {

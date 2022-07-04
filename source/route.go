@@ -4,10 +4,10 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/skatekrak/scribe/clients/vimeo"
+	"github.com/skatekrak/scribe/clients/youtube"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/middlewares"
-	"github.com/skatekrak/scribe/vendors/clients/vimeo"
-	"github.com/skatekrak/scribe/vendors/clients/youtube"
 	"gorm.io/gorm"
 )
 

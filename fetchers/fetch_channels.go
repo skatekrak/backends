@@ -3,8 +3,8 @@ package fetchers
 import (
 	"errors"
 
-	"github.com/skatekrak/scribe/vendors/clients/vimeo"
-	"github.com/skatekrak/scribe/vendors/clients/youtube"
+	"github.com/skatekrak/scribe/clients/vimeo"
+	"github.com/skatekrak/scribe/clients/youtube"
 )
 
 // For a given channel URL, will fetch the vimeo or youtube channel data
