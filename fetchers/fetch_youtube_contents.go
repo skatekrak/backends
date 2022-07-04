@@ -6,7 +6,7 @@ import (
 	"github.com/skatekrak/scribe/vendors/clients/youtube"
 )
 
-func (fe *Fetcher) fetchYoutubeChannelContent(channelID string) ([]ContentFetchData, error) {
+func (fe *Fetcher) FetchYoutubeChannelContents(channelID string) ([]ContentFetchData, error) {
 	data, err := fe.y.FetchVideos(channelID)
 	if err != nil {
 		return []ContentFetchData{}, err
@@ -29,15 +29,15 @@ func (fe *Fetcher) fetchYoutubeChannelContent(channelID string) ([]ContentFetchD
 	return items, nil
 }
 
-func (fe *Fetcher) FetchYoutubeContent(channelIDs []string, contents *[]ContentFetchData) map[string]error {
+func (fe *Fetcher) FetchYoutubeContent(channelIDs []string, contents map[string][]ContentFetchData) map[string]error {
 	errors := make(map[string]error)
 
 	for _, channelID := range channelIDs {
-		c, err := fe.fetchYoutubeChannelContent(channelID)
+		c, err := fe.FetchYoutubeChannelContents(channelID)
 		if err != nil {
 			errors[channelID] = err
 		} else {
-			*contents = append(*contents, c...)
+			contents[channelID] = c
 		}
 	}
 

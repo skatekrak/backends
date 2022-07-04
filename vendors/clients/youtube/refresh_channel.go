@@ -38,8 +38,6 @@ func (y *YoutubeClient) FetchVideos(channelID string) (FetchResponse[VideoItem],
 		return FetchResponse[VideoItem]{}, err
 	}
 
-	defer response.Body.Close()
-
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return FetchResponse[VideoItem]{}, err

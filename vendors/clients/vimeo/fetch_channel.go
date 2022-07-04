@@ -37,8 +37,6 @@ func (v *VimeoClient) FetchChannel(userID string) (FetchChannelResponse, error) 
 		return FetchChannelResponse{}, err
 	}
 
-	defer req.Body.Close()
-
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", v.apiKey))
 	client := &http.Client{}
 

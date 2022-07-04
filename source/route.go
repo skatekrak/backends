@@ -12,7 +12,7 @@ import (
 )
 
 type FindAllQuery struct {
-	Types []string `form:"types[]" validate:"dive,eq=vimeo|eq=youtube|eq=rss"`
+	Types []string `query:"types" validate:"dive,eq=vimeo|eq=youtube|eq=rss"`
 }
 
 type CreateBody struct {
@@ -38,7 +38,7 @@ type UpdateBody struct {
 }
 
 type RefreshQuery struct {
-	Types []string `form:"types[]" validate:"dive,eq=vimeo|eq=youtube|eq=rss"`
+	Types []string `query:"types" validate:"required,dive,eq=vimeo|eq=youtube|eq=rss"`
 }
 
 func Route(app *fiber.App, db *gorm.DB) {

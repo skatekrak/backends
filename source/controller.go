@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/content"
@@ -180,13 +181,13 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 		})
 	}
 
-	contents := []fetchers.ContentFetchData{}
+	contentsMap := map[string][]fetchers.ContentFetchData{}
 	if source.SourceType == "youtube" {
-		if errors := c.fetcher.FetchYoutubeContent([]string{source.SourceID}, &contents); len(errors) > 0 {
+		if errors := c.fetcher.FetchYoutubeContent([]string{source.SourceID}, contentsMap); len(errors) > 0 {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(errors)
 		}
 	} else if source.SourceType == "vimeo" {
-		if errors := c.fetcher.FetcherVimeoContent([]string{source.SourceID}, contents); len(errors) > 0 {
+		if errors := c.fetcher.FetcherVimeoContent([]string{source.SourceID}, contentsMap); len(errors) > 0 {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(errors)
 		}
 	} else {
@@ -197,7 +198,7 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 
 	formattedContents := []*model.Content{}
 
-	for _, content := range contents {
+	for _, content := range contentsMap[source.SourceID] {
 		// Only add content not already here
 		if _, err := c.cs.FindOneByContentID(content.ContentID); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -216,7 +217,10 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 		}
 	}
 
-	if err := c.cs.AddMany(formattedContents); err != nil {
+	now := time.Now()
+	source.RefreshedAt = &now
+
+	if err := c.cs.AddMany(formattedContents, []*model.Source{&source}); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -226,7 +230,69 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) RefreshTypes(ctx *fiber.Ctx) error {
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "",
-	})
+	query := ctx.Locals(middlewares.QUERY).(RefreshQuery)
+
+	sources, err := c.s.FindAll(query.Types)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	if len(sources) <= 0 {
+		return ctx.Status(fiber.StatusNotModified).JSON(fiber.Map{
+			"message": "No sources to update",
+		})
+	}
+
+	formattedContents := []*model.Content{}
+	errs := make(map[uint]error)
+	now := time.Now()
+
+	for _, source := range sources {
+		if source.SourceType == "youtube" || source.SourceType == "vimeo" {
+			contents, err := c.fetcher.FetchChannelContents(source.SourceID, source.SourceType)
+
+			if err != nil {
+				errs[source.ID] = err
+				continue
+			}
+
+			for _, content := range contents {
+				// Only add content not already here
+				if _, err := c.cs.FindOneByContentID(content.ContentID); err != nil {
+					if errors.Is(err, gorm.ErrRecordNotFound) {
+						formattedContents = append(formattedContents, &model.Content{
+							SourceID:     source.ID,
+							ContentID:    content.ContentID,
+							PublishedAt:  content.PublishedAt,
+							Title:        content.Title,
+							ThumbnailURL: content.ThumbnailURL,
+							ContentURL:   content.ContentURL,
+							RawSummary:   content.RawDescription,
+							Summary:      content.Description,
+							Type:         "video",
+						})
+					}
+				}
+			}
+
+			source.RefreshedAt = &now
+		}
+	}
+
+	if len(errs) > 0 {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error refreshing sources",
+			"errors":  errs,
+		})
+	}
+
+	if err := c.cs.AddMany(formattedContents, sources); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(formattedContents)
 }

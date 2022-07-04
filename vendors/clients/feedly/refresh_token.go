@@ -24,7 +24,6 @@ func (f *FeedlyClient) RefreshToken() (string, error) {
 		return "", err
 	}
 
-	defer req.Body.Close()
 	responseData, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		return "", err

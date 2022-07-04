@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -35,13 +36,13 @@ type VimeoVideosResponse struct {
 }
 
 func (v *VimeoClient) FetchVideos(userID string) (VimeoVideosResponse, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://api.vimeo.com/users/%s/videos", userID), nil)
+	url := fmt.Sprintf("https://api.vimeo.com/users/%s/videos", userID)
+	log.Println(url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 
 	if err != nil {
 		return VimeoVideosResponse{}, err
 	}
-
-	defer req.Body.Close()
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", v.apiKey))
 	client := &http.Client{}

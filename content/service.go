@@ -58,8 +58,22 @@ func (s *Service) FindFromSource(sourceID string, page int) ([]model.Content, er
 	return contents, err
 }
 
-func (s *Service) AddMany(sources []*model.Content) error {
-	return s.db.CreateInBatches(sources, len(sources)).Error
+func (s *Service) AddMany(contents []*model.Content, sources []*model.Source) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.CreateInBatches(contents, len(contents)).Error; err != nil {
+			return err
+		}
+
+		for _, s := range sources {
+			if err := tx.Save(&s).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	// return s.db.CreateInBatches(contents, len(contents)).Error
 }
 
 func (s *Service) FindOneByContentID(contentID string) (model.Content, error) {

@@ -33,8 +33,6 @@ func GetChannelID(url string) (string, error) {
 		return "", err
 	}
 
-	defer res.Body.Close()
-
 	if res.StatusCode != 200 {
 		return "", errors.New("error fetching url")
 	}
