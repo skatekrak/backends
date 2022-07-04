@@ -5,9 +5,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/fetchers"
-	"github.com/skatekrak/scribe/fetchers/vimeo"
-	"github.com/skatekrak/scribe/fetchers/youtube"
 	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/vendors/clients/vimeo"
+	"github.com/skatekrak/scribe/vendors/clients/youtube"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +19,7 @@ type CreateBody struct {
 	URL           string `json:"url" validated:"required"`
 	LangIsoCode   string `json:"lang" validate:"required"`
 	IsSkateSource bool   `json:"isSkateSource"`
+	Type          string `json:"type" validate:"required,oneof=vimeo youtube"`
 }
 
 type SourceURI struct {
@@ -36,13 +37,18 @@ type UpdateBody struct {
 	WebsiteURL    *string `json:"websiteURL"`
 }
 
+type RefreshQuery struct {
+	Types []string `form:"types[]" validate:"dive,eq=vimeo|eq=youtube|eq=rss"`
+}
+
 func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
 
-	youtubeFetcher := youtube.NewYoutubeFetcher(os.Getenv("YOUTUBE_API_KEY"))
-	vimeoFetcher := vimeo.NewVimeoSourceFetcher(os.Getenv("VIMEO_API_KEY"))
+	youtubeClient := youtube.New(os.Getenv("YOUTUBE_API_KEY"))
+	vimeoClient := vimeo.New(os.Getenv("VIMEO_API_KEY"))
+	fetcher := fetchers.New(vimeoClient, youtubeClient, nil)
 
-	controller := NewController(db, []fetchers.SourceFetcher{youtubeFetcher, vimeoFetcher})
+	controller := NewController(db, fetcher)
 	auth := middlewares.Authorization(apiKey)
 
 	router := app.Group("sources")
@@ -53,4 +59,5 @@ func Route(app *fiber.App, db *gorm.DB) {
 	router.Delete("/:sourceID", auth, controller.LoaderHandler(), controller.Delete)
 
 	router.Post("/:sourceID/refresh", auth, controller.LoaderHandler(), controller.RefreshSource)
+	router.Post("/refresh", auth, middlewares.QueryHandler[RefreshQuery](), controller.RefreshTypes)
 }

@@ -12,6 +12,8 @@ import (
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
+	"github.com/skatekrak/scribe/vendors/clients/vimeo"
+	"github.com/skatekrak/scribe/vendors/clients/youtube"
 	"gorm.io/gorm"
 )
 
@@ -19,18 +21,18 @@ import (
 const context_source = "source"
 
 type Controller struct {
-	s        *Service
-	ls       *lang.Service
-	cs       *content.Service
-	fetchers []fetchers.SourceFetcher
+	s       *Service
+	ls      *lang.Service
+	cs      *content.Service
+	fetcher *fetchers.Fetcher
 }
 
-func NewController(db *gorm.DB, fetchers []fetchers.SourceFetcher) *Controller {
+func NewController(db *gorm.DB, fetcher *fetchers.Fetcher) *Controller {
 	return &Controller{
-		s:        NewService(db),
-		ls:       lang.NewService(db),
-		cs:       content.NewService(db),
-		fetchers: fetchers,
+		s:       NewService(db),
+		ls:      lang.NewService(db),
+		cs:      content.NewService(db),
+		fetcher: fetcher,
 	}
 }
 
@@ -67,20 +69,20 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(CreateBody)
 
 	var sourceID string
-	var fetcher fetchers.SourceFetcher
 
-	// Run throught the fetchers to find the one for the given url
-	for _, f := range c.fetchers {
-		if f.IsFromSource(body.URL) {
-			if s, err := f.GetSourceID(body.URL); err == nil {
-				sourceID = s
-				fetcher = f
-				break
-			}
-		}
+	if body.Type == "youtube" && !youtube.IsYoutubeChannel(body.URL) {
+		return ctx.Status(fiber.StatusExpectationFailed).JSON(fiber.Map{
+			"message": "This isn't a youtube url",
+		})
+	}
+	if body.Type == "vimeo" && !vimeo.IsVimeoUser(body.URL) {
+		return ctx.Status(fiber.StatusExpectationFailed).JSON(fiber.Map{
+			"message": "This isn't a vimeo url",
+		})
 	}
 
-	if sourceID == "" {
+	sourceID, err := c.fetcher.GetSourceID(body.URL)
+	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "This url seems invalid or not supported",
 		})
@@ -88,7 +90,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 
 	if _, err := c.s.GetBySourceID(sourceID); err == nil {
 		return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{
-			"message": fmt.Sprintf("This %s source is already added", fetcher.Type()),
+			"message": fmt.Sprintf("This %s source is already added", body.Type),
 		})
 	}
 
@@ -100,7 +102,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 		})
 	}
 
-	data, err := fetcher.Fetch(body.URL)
+	data, err := c.fetcher.FetchChannelData(body.URL)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -109,7 +111,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 
 	source := model.Source{
 		Order:       nextOrder,
-		SourceType:  fetcher.Type(),
+		SourceType:  body.Type,
 		SkateSource: body.IsSkateSource,
 		LangIsoCode: body.LangIsoCode,
 		SourceID:    sourceID,
@@ -172,18 +174,24 @@ func (c *Controller) Delete(ctx *fiber.Ctx) error {
 func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 	source := ctx.Locals(context_source).(model.Source)
 
-	var fetcher fetchers.SourceFetcher
-	for _, f := range c.fetchers {
-		if source.SourceType == f.Type() {
-			fetcher = f
-			break
-		}
+	if source.SourceType == "rss" {
+		return ctx.Status(fiber.StatusNotAcceptable).JSON(fiber.Map{
+			"message": "rss sources cannot be individually refreshed",
+		})
 	}
 
-	contents, err := fetcher.RefreshSource(source.SourceID)
-	if err != nil {
+	contents := []fetchers.ContentFetchData{}
+	if source.SourceType == "youtube" {
+		if errors := c.fetcher.FetchYoutubeContent([]string{source.SourceID}, &contents); len(errors) > 0 {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(errors)
+		}
+	} else if source.SourceType == "vimeo" {
+		if errors := c.fetcher.FetcherVimeoContent([]string{source.SourceID}, contents); len(errors) > 0 {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(errors)
+		}
+	} else {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err.Error(),
+			"message": "Oops",
 		})
 	}
 
@@ -202,7 +210,7 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 					ContentURL:   content.ContentURL,
 					RawSummary:   content.RawDescription,
 					Summary:      content.Description,
-					Type:         fetcher.ContentType(),
+					Type:         "video",
 				})
 			}
 		}
@@ -215,4 +223,10 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(formattedContents)
+}
+
+func (c *Controller) RefreshTypes(ctx *fiber.Ctx) error {
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "",
+	})
 }

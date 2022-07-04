@@ -58,13 +58,13 @@ type FeedlyFetchContentsResponse struct {
 	Items        []FeedlyFetchContentItem `json:"items"`
 }
 
-func FetchContents(token string, categoryID string) (FeedlyFetchContentsResponse, error) {
+func (f *FeedlyClient) FetchContents(categoryID string) (FeedlyFetchContentsResponse, error) {
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://cloud.feedly.com/v3/streams/contents?streamId=%s&count=1000", categoryID), nil)
 	if err != nil {
 		return FeedlyFetchContentsResponse{}, err
 	}
 
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", f.accessToken)
 	client := &http.Client{}
 
 	response, err := client.Do(req)

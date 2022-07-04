@@ -18,8 +18,8 @@ type FeedlyRefreshTokenResopnse struct {
 	ExpiresIn    int    `json:"expires_in"`
 }
 
-func RefreshToken(refreshToken string) (string, error) {
-	req, err := http.Get(fmt.Sprintf("https://cloud.feedly.com/v3/auth/token?refresh_token=%s&client_id=%s&client_secret=%s&grant_type=%s", refreshToken, "feedlydev", "feedlydev", "refresh_token"))
+func (f *FeedlyClient) RefreshToken() (string, error) {
+	req, err := http.Get(fmt.Sprintf("https://cloud.feedly.com/v3/auth/token?refresh_token=%s&client_id=%s&client_secret=%s&grant_type=%s", f.refreshToken, "feedlydev", "feedlydev", "refresh_token"))
 	if err != nil {
 		return "", err
 	}
@@ -34,6 +34,8 @@ func RefreshToken(refreshToken string) (string, error) {
 	if err := json.Unmarshal(responseData, &data); err != nil {
 		return "", err
 	}
+
+	f.accessToken = data.AccessToken
 
 	return data.AccessToken, nil
 }

@@ -2,11 +2,9 @@ package vimeo
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"regexp"
 	"time"
 )
 
@@ -16,7 +14,7 @@ type ChannelPictureSize struct {
 	Link   string `json:"link"`
 }
 
-type ChannelPictures struct {
+type VimeoPictures struct {
 	URI      string               `json:"uri"`
 	Active   bool                 `json:"active"`
 	BaseLink string               `json:"base_link"`
@@ -24,22 +22,24 @@ type ChannelPictures struct {
 }
 
 type FetchChannelResponse struct {
-	URI         string          `json:"uri"`
-	Name        string          `json:"name"`
-	Link        string          `json:"link"`
-	Bio         string          `json:"bio"`
-	ShortBio    string          `json:"short_bio"`
-	CreatedTime time.Time       `json:"created_time"`
-	Pictures    ChannelPictures `json:"pictures"`
+	URI         string        `json:"uri"`
+	Name        string        `json:"name"`
+	Link        string        `json:"link"`
+	Bio         string        `json:"bio"`
+	ShortBio    string        `json:"short_bio"`
+	CreatedTime time.Time     `json:"created_time"`
+	Pictures    VimeoPictures `json:"pictures"`
 }
 
-func FetchChannel(userID, apiKey string) (FetchChannelResponse, error) {
+func (v *VimeoClient) FetchChannel(userID string) (FetchChannelResponse, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.vimeo.com/users/%s", userID), nil)
 	if err != nil {
 		return FetchChannelResponse{}, err
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+	defer req.Body.Close()
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", v.apiKey))
 	client := &http.Client{}
 
 	response, err := client.Do(req)
@@ -58,20 +58,4 @@ func FetchChannel(userID, apiKey string) (FetchChannelResponse, error) {
 	}
 
 	return data, err
-}
-
-func IsVimeoUser(url string) bool {
-	match, _ := regexp.MatchString(`(?:https:\/\/)?vimeo.com\/user\d+`, url)
-	return match
-}
-
-func GetUserID(url string) (string, error) {
-	r, _ := regexp.Compile(`user\d+`)
-
-	userID := r.FindString(url)
-
-	if userID == "" {
-		return "", errors.New("userID not found")
-	}
-	return userID, nil
 }

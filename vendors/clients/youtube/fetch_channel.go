@@ -2,14 +2,10 @@ package youtube
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"regexp"
 	"time"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 type PageInfo struct {
@@ -61,8 +57,8 @@ type FetchResponse[T any] struct {
 	Items    []T      `json:"items"`
 }
 
-func FetchChannel(channelID, accessToken string) (FetchResponse[ChannelItem], error) {
-	response, err := http.Get(fmt.Sprintf("https://www.googleapis.com/youtube/v3/channels?part=snippet,brandingSettings&id=%s&key=%s", channelID, accessToken))
+func (y *YoutubeClient) FetchChannel(channelID string) (FetchResponse[ChannelItem], error) {
+	response, err := http.Get(fmt.Sprintf("https://www.googleapis.com/youtube/v3/channels?part=snippet,brandingSettings&id=%s&key=%s", channelID, y.apiKey))
 
 	if err != nil {
 		return FetchResponse[ChannelItem]{}, err
@@ -79,44 +75,4 @@ func FetchChannel(channelID, accessToken string) (FetchResponse[ChannelItem], er
 	}
 
 	return data, nil
-}
-
-func IsYoutubeChannel(url string) bool {
-	// Check if URL is of a youtube channel
-	match, _ := regexp.MatchString(`(?:https?:\/\/)?(?:(?:(?:www\.?)?youtube\.com\/c\/\w+))`, url)
-	return match
-}
-
-// For a given youtube channel URL
-func GetChannelID(url string) (string, error) {
-	if !IsYoutubeChannel(url) {
-		return "", errors.New("URL is not a youtube channel")
-	}
-
-	res, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
-
-	defer res.Body.Close()
-
-	if res.StatusCode != 200 {
-		return "", errors.New("error fetching url")
-	}
-
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		return "", err
-	}
-
-	s := doc.Find(`[itemprop="channelId"]`)
-	if s.Length() <= 0 {
-		return "", errors.New("channelID not found")
-	}
-
-	if channelId, ok := s.First().Attr("content"); ok {
-		return channelId, nil
-	}
-
-	return "", errors.New("channelID not found")
 }

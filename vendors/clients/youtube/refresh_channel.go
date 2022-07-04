@@ -30,8 +30,8 @@ type VideoItem struct {
 	Snippet VideoSnippet `json:"snippet"`
 }
 
-func FetchVideos(channelID, apiKey string) (FetchResponse[VideoItem], error) {
-	url := fmt.Sprintf("https://www.googleapis.com/youtube/v3/search?channelId=%s&part=snippet&key=%s&maxResults=50&order=date", channelID, apiKey)
+func (y *YoutubeClient) FetchVideos(channelID string) (FetchResponse[VideoItem], error) {
+	url := fmt.Sprintf("https://www.googleapis.com/youtube/v3/search?channelId=%s&part=snippet&key=%s&maxResults=50&order=date", channelID, y.apiKey)
 
 	response, err := http.Get(url)
 	if err != nil {
@@ -51,15 +51,4 @@ func FetchVideos(channelID, apiKey string) (FetchResponse[VideoItem], error) {
 	}
 
 	return data, nil
-}
-
-func GetBestThumbnail(thumbnails SnippetThumbnails) string {
-	if thumbnails.Standard != nil {
-		return thumbnails.Standard.URL
-	} else if thumbnails.High != nil {
-		return thumbnails.High.URL
-	} else if thumbnails.Medium != nil {
-		return thumbnails.Medium.URL
-	}
-	return thumbnails.Default.URL
 }
