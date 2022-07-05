@@ -38,3 +38,7 @@ func (f *FeedlyClient) RefreshToken() (string, error) {
 
 	return data.AccessToken, nil
 }
+
+func (f *FeedlyClient) HasRefreshToken() bool {
+	return f.accessToken != ""
+}

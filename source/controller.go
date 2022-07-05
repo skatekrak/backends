@@ -22,18 +22,20 @@ import (
 const context_source = "source"
 
 type Controller struct {
-	s       *Service
-	ls      *lang.Service
-	cs      *content.Service
-	fetcher *fetchers.Fetcher
+	s                *Service
+	ls               *lang.Service
+	cs               *content.Service
+	fetcher          *fetchers.Fetcher
+	feedlyCategoryID string
 }
 
-func NewController(db *gorm.DB, fetcher *fetchers.Fetcher) *Controller {
+func NewController(db *gorm.DB, fetcher *fetchers.Fetcher, feedlyCategoryID string) *Controller {
 	return &Controller{
-		s:       NewService(db),
-		ls:      lang.NewService(db),
-		cs:      content.NewService(db),
-		fetcher: fetcher,
+		s:                NewService(db),
+		ls:               lang.NewService(db),
+		cs:               content.NewService(db),
+		fetcher:          fetcher,
+		feedlyCategoryID: feedlyCategoryID,
 	}
 }
 
@@ -262,22 +264,40 @@ func (c *Controller) RefreshTypes(ctx *fiber.Ctx) error {
 				// Only add content not already here
 				if _, err := c.cs.FindOneByContentID(content.ContentID); err != nil {
 					if errors.Is(err, gorm.ErrRecordNotFound) {
-						formattedContents = append(formattedContents, &model.Content{
-							SourceID:     source.ID,
-							ContentID:    content.ContentID,
-							PublishedAt:  content.PublishedAt,
-							Title:        content.Title,
-							ThumbnailURL: content.ThumbnailURL,
-							ContentURL:   content.ContentURL,
-							RawSummary:   content.RawDescription,
-							Summary:      content.Description,
-							Type:         "video",
-						})
+						formattedContents = append(formattedContents, formatContent(content, source))
 					}
 				}
 			}
 
 			source.RefreshedAt = &now
+		}
+	}
+
+	if helpers.Has(query.Types, "rss") {
+		contents, err := c.fetcher.FetchFeedlyContents(c.feedlyCategoryID)
+		if err != nil {
+			ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Coudln't refresh feedly",
+				"error":   err.Error(),
+			})
+		}
+
+		for _, content := range contents {
+			// Only add content not already here
+			if _, err := c.cs.FindOneByContentID(content.ContentID); err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					// Look into sources we've aleady fetched
+					source, ok := helpers.Find(sources, func(s *model.Source) bool {
+						return s.SourceID == content.SourceID
+					})
+
+					if ok {
+						formattedContents = append(formattedContents, formatContent(content, source))
+
+						source.RefreshedAt = &now
+					}
+				}
+			}
 		}
 	}
 
@@ -295,4 +315,18 @@ func (c *Controller) RefreshTypes(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(formattedContents)
+}
+
+func formatContent(content fetchers.ContentFetchData, source *model.Source) *model.Content {
+	return &model.Content{
+		SourceID:     source.ID,
+		ContentID:    content.ContentID,
+		PublishedAt:  content.PublishedAt,
+		Title:        content.Title,
+		ThumbnailURL: content.ThumbnailURL,
+		ContentURL:   content.ContentURL,
+		RawSummary:   content.RawDescription,
+		Summary:      content.Description,
+		Type:         "video",
+	}
 }

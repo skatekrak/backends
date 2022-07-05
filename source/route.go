@@ -48,7 +48,7 @@ func Route(app *fiber.App, db *gorm.DB) {
 	vimeoClient := vimeo.New(os.Getenv("VIMEO_API_KEY"))
 	fetcher := fetchers.New(vimeoClient, youtubeClient, nil)
 
-	controller := NewController(db, fetcher)
+	controller := NewController(db, fetcher, os.Getenv("FEEDLY_FETCH_CATEGORY_ID"))
 	auth := middlewares.Authorization(apiKey)
 
 	router := app.Group("sources")

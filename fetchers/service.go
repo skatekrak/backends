@@ -25,6 +25,7 @@ type ContentFetchData struct {
 	ThumbnailURL   string
 	ContentID      string // or VideoID
 	ContentURL     string
+	SourceID       string
 }
 
 type Fetcher struct {
