@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/middlewares"
-	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
 )
 
@@ -38,23 +37,4 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(contents)
-}
-
-func formatContent(content fetchers.ContentFetchData, source *model.Source) *model.Content {
-	contentType := "video"
-	if source.SourceType == "rss" {
-		contentType = "article"
-	}
-
-	return &model.Content{
-		SourceID:     source.ID,
-		ContentID:    content.ContentID,
-		PublishedAt:  content.PublishedAt,
-		Title:        content.Title,
-		ThumbnailURL: content.ThumbnailURL,
-		ContentURL:   content.ContentURL,
-		RawSummary:   content.RawDescription,
-		Summary:      content.Description,
-		Type:         contentType,
-	}
 }
