@@ -19,6 +19,7 @@ type RefreshQuery struct {
 
 func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
+	feedlyCategoryID := os.Getenv("FEEDLY_FETCH_CATEGORY_ID")
 
 	youtubeClient := youtube.New(os.Getenv("YOUTUBE_API_KEY"))
 	vimeoClient := vimeo.New(os.Getenv("VIMEO_API_KEY"))
@@ -27,12 +28,14 @@ func Route(app *fiber.App, db *gorm.DB) {
 
 	sourceService := services.NewSourceService(db)
 	contentService := services.NewContentService(db)
+	refreshService := services.NewRefreshService(db, fetcher, feedlyCategoryID)
 
 	controller := &Controller{
+		rs:               refreshService,
 		ss:               sourceService,
 		cs:               contentService,
 		fetcher:          fetcher,
-		feedlyCategoryID: os.Getenv("FEEDLY_FETCH_CATEGORY_ID"),
+		feedlyCategoryID: feedlyCategoryID,
 	}
 	auth := middlewares.Authorization(apiKey)
 	sourceLoader := middlewares.SourceLoader(sourceService)
