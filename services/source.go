@@ -39,13 +39,14 @@ func (s *SourceService) GetBySourceID(sourceID string) (model.Source, error) {
 
 func (s *SourceService) GetNextOrder() (int, error) {
 	var sources []model.Source
-	if err := s.db.Order("\"order asc\"").Limit(1).Find(&sources).Error; err != nil {
+	if err := s.db.Order("\"order\" desc").Limit(1).Find(&sources).Error; err != nil {
 		return 0, err
 	}
 
 	if len(sources) > 0 {
 		return sources[0].Order + 1, nil
 	}
+
 	return 0, nil
 }
 
