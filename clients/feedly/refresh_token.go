@@ -8,7 +8,7 @@ import (
 )
 
 type FeedlyRefreshTokenResopnse struct {
-	Provider     string `json:"providre"`
+	Provider     string `json:"provider"`
 	IsNewAccount bool   `json:"is_new_account"`
 	Plan         string `json:"plan"`
 	ID           string `json:"id"`
