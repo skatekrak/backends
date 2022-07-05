@@ -4,17 +4,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
-	"gorm.io/gorm"
+	"github.com/skatekrak/scribe/services"
 )
 
 const context_lang = "lang"
 
 type Controller struct {
-	s *Service
-}
-
-func NewController(db *gorm.DB) *Controller {
-	return &Controller{s: NewService(db)}
+	s *services.LangService
 }
 
 func (c *Controller) LoaderHandler() fiber.Handler {

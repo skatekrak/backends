@@ -3,17 +3,11 @@ package content
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/middlewares"
-	"gorm.io/gorm"
+	"github.com/skatekrak/scribe/services"
 )
 
 type Controller struct {
-	s *Service
-}
-
-func NewController(db *gorm.DB) *Controller {
-	return &Controller{
-		s: NewService(db),
-	}
+	s *services.ContentService
 }
 
 func (c *Controller) Find(ctx *fiber.Ctx) error {

@@ -1,4 +1,4 @@
-package content
+package services
 
 import (
 	"fmt"
@@ -8,15 +8,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type Service struct {
+type ContentService struct {
 	db *gorm.DB
 }
 
-func NewService(db *gorm.DB) *Service {
-	return &Service{db}
+func NewContentService(db *gorm.DB) *ContentService {
+	return &ContentService{db}
 }
 
-func (s *Service) Find(sourceTypes []string, page int) ([]model.Content, error) {
+func (s *ContentService) Find(sourceTypes []string, page int) ([]model.Content, error) {
 	var contents []model.Content
 
 	log.Println("sourceTypes", sourceTypes)
@@ -41,7 +41,7 @@ func (s *Service) Find(sourceTypes []string, page int) ([]model.Content, error) 
 	return contents, nil
 }
 
-func (s *Service) FindFromSource(sourceID string, page int) ([]model.Content, error) {
+func (s *ContentService) FindFromSource(sourceID string, page int) ([]model.Content, error) {
 	var contents []model.Content
 
 	err := s.db.Find(&contents).
@@ -58,7 +58,7 @@ func (s *Service) FindFromSource(sourceID string, page int) ([]model.Content, er
 	return contents, err
 }
 
-func (s *Service) AddMany(contents []*model.Content, sources []*model.Source) error {
+func (s *ContentService) AddMany(contents []*model.Content, sources []*model.Source) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.CreateInBatches(contents, len(contents)).Error; err != nil {
 			return err
@@ -76,7 +76,7 @@ func (s *Service) AddMany(contents []*model.Content, sources []*model.Source) er
 	// return s.db.CreateInBatches(contents, len(contents)).Error
 }
 
-func (s *Service) FindOneByContentID(contentID string) (model.Content, error) {
+func (s *ContentService) FindOneByContentID(contentID string) (model.Content, error) {
 	var content model.Content
 	err := s.db.Where("content_id = ?", contentID).First(&content).Error
 	return content, err

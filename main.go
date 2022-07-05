@@ -11,6 +11,7 @@ import (
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/model"
+	"github.com/skatekrak/scribe/refresh"
 	"github.com/skatekrak/scribe/source"
 )
 
@@ -35,6 +36,7 @@ func main() {
 	lang.Route(app, db)
 	source.Route(app, db)
 	content.Route(app, db)
+	refresh.Route(app, db)
 
 	app.Listen(":8080")
 }

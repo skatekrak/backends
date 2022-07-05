@@ -8,6 +8,7 @@ import (
 	"github.com/skatekrak/scribe/clients/youtube"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/services"
 	"gorm.io/gorm"
 )
 
@@ -22,11 +23,20 @@ func Route(app *fiber.App, db *gorm.DB) {
 	vimeoClient := vimeo.New(os.Getenv("VIMEO_API_KEY"))
 	fetcher := fetchers.New(vimeoClient, youtubeClient, nil)
 
-	controller := New(db, fetcher, os.Getenv("FEEDLY_FETCH_CATEGORY_ID"))
+	sourceService := services.NewSourceService(db)
+	contentService := services.NewContentService(db)
+
+	controller := &Controller{
+		ss:               sourceService,
+		cs:               contentService,
+		fetcher:          fetcher,
+		feedlyCategoryID: os.Getenv("FEEDLY_FETCH_CATEGORY_ID"),
+	}
 	auth := middlewares.Authorization(apiKey)
+	sourceLoader := middlewares.SourceLoader(sourceService)
 
 	router := app.Group("refresh")
 
 	router.Post("", auth, middlewares.QueryHandler[RefreshQuery](), controller.RefreshByTypes)
-	router.Post("/:sourceID", auth, controller.LoaderHandler(), controller.RefreshSource)
+	router.Post("/:sourceID", auth, sourceLoader, controller.RefreshSource)
 }

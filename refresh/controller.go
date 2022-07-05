@@ -5,29 +5,19 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/skatekrak/scribe/content"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/helpers"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
-	"github.com/skatekrak/scribe/source"
+	"github.com/skatekrak/scribe/services"
 	"gorm.io/gorm"
 )
 
 type Controller struct {
-	ss               *source.Service
-	cs               *content.Service
+	ss               *services.SourceService
+	cs               *services.ContentService
 	fetcher          *fetchers.Fetcher
 	feedlyCategoryID string
-}
-
-func New(db *gorm.DB, fetcher *fetchers.Fetcher, feedlyCategoryID string) *Controller {
-	return &Controller{
-		ss:               source.NewService(db),
-		cs:               content.NewService(db),
-		fetcher:          fetcher,
-		feedlyCategoryID: feedlyCategoryID,
-	}
 }
 
 func (c *Controller) RefreshByTypes(ctx *fiber.Ctx) error {
@@ -117,7 +107,7 @@ func (c *Controller) RefreshByTypes(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
-	source := ctx.Locals("sourceID").(model.Source)
+	source := middlewares.GetSource(ctx)
 
 	if source.SourceType == "rss" {
 		return ctx.Status(fiber.StatusNotAcceptable).JSON(fiber.Map{

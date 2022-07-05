@@ -8,7 +8,7 @@ import (
 	"github.com/skatekrak/scribe/clients/youtube"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/middlewares"
-	"github.com/skatekrak/scribe/middlewares/loaders"
+	"github.com/skatekrak/scribe/services"
 	"gorm.io/gorm"
 )
 
@@ -45,16 +45,25 @@ func Route(app *fiber.App, db *gorm.DB) {
 	vimeoClient := vimeo.New(os.Getenv("VIMEO_API_KEY"))
 	fetcher := fetchers.New(vimeoClient, youtubeClient, nil)
 
-	controller := NewController(db, fetcher, os.Getenv("FEEDLY_FETCH_CATEGORY_ID"), loaders.SOURCE_LOADER_LOCAL)
-	auth := middlewares.Authorization(apiKey)
+	sourceService := services.NewSourceService(db)
+	contentService := services.NewContentService(db)
+	langService := services.NewLangService(db)
 
-	sourceService := NewService(db)
+	controller := &Controller{
+		s:                sourceService,
+		cs:               contentService,
+		ls:               langService,
+		fetcher:          fetcher,
+		feedlyCategoryID: os.Getenv("FEEDLY_FETCH_CATEGORY_ID"),
+	}
+	auth := middlewares.Authorization(apiKey)
+	sourceLoader := middlewares.SourceLoader(sourceService)
 
 	router := app.Group("sources")
 
 	router.Get("", middlewares.QueryHandler[FindAllQuery](), controller.FindAll)
 	router.Post("", auth, middlewares.JSONHandler[CreateBody](), controller.Create)
-	router.Patch("/:sourceID", auth, loaders.SourceLoader(sourceService), middlewares.JSONHandler[UpdateBody](), controller.Update)
-	router.Delete("/:sourceID", auth, loaders.SourceLoader(sourceService), controller.Delete)
+	router.Patch("/:sourceID", auth, sourceLoader, middlewares.JSONHandler[UpdateBody](), controller.Update)
+	router.Delete("/:sourceID", auth, sourceLoader, controller.Delete)
 
 }

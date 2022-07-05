@@ -7,33 +7,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/clients/vimeo"
 	"github.com/skatekrak/scribe/clients/youtube"
-	"github.com/skatekrak/scribe/content"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/helpers"
-	"github.com/skatekrak/scribe/lang"
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
-	"gorm.io/gorm"
+	"github.com/skatekrak/scribe/services"
 )
 
 type Controller struct {
-	s                *Service
-	ls               *lang.Service
-	cs               *content.Service
+	s                *services.SourceService
+	ls               *services.LangService
+	cs               *services.ContentService
 	fetcher          *fetchers.Fetcher
 	feedlyCategoryID string
-	sourceLoaderKey  string
-}
-
-func NewController(db *gorm.DB, fetcher *fetchers.Fetcher, feedlyCategoryID string, sourceLoaderKey string) *Controller {
-	return &Controller{
-		s:                NewService(db),
-		ls:               lang.NewService(db),
-		cs:               content.NewService(db),
-		fetcher:          fetcher,
-		feedlyCategoryID: feedlyCategoryID,
-		sourceLoaderKey:  sourceLoaderKey,
-	}
 }
 
 func (c *Controller) FindAll(ctx *fiber.Ctx) error {
@@ -120,7 +106,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 
 func (c *Controller) Update(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(UpdateBody)
-	source := ctx.Locals(c.sourceLoaderKey).(model.Source)
+	source := middlewares.GetSource(ctx)
 
 	source.LangIsoCode = helpers.SetIfNotNil(body.LangIsoCode, source.LangIsoCode)
 	source.SkateSource = helpers.SetIfNotNil(body.IsSkateSource, source.SkateSource)
@@ -141,7 +127,7 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) Delete(ctx *fiber.Ctx) error {
-	source := ctx.Locals(c.sourceLoaderKey).(model.Source)
+	source := middlewares.GetSource(ctx)
 
 	if err := c.s.Delete(&source); err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/services"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +24,12 @@ type LangUri struct {
 
 func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
-	controller := NewController(db)
+
+	langService := services.NewLangService(db)
+	controller := &Controller{
+		s: langService,
+	}
+
 	auth := middlewares.Authorization(apiKey)
 
 	router := app.Group("/langs")
