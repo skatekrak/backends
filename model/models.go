@@ -7,52 +7,60 @@ import (
 	"gorm.io/gorm"
 )
 
+type Model struct {
+	ID        uint           `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+}
+
 type Lang struct {
-	IsoCode   string `gorm:"primaryKey" json:"isoCode"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-	ImageURL  string         `json:"imageURL"`
+	IsoCode   string         `gorm:"primaryKey" json:"isoCode"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+	ImageURL  string         `json:"imageUrl"`
 
 	Sources []Source
 }
 
 type Source struct {
-	gorm.Model
-	RefreshedAt *time.Time
-	Order       int `gorm:"index"`
-	SourceType  string
-	LangIsoCode string
-	Title       string
-	ShortTitle  string
-	IconURL     string
-	CoverURL    string
-	Description string
-	SkateSource bool `gorm:"default:true"`
-	WebsiteURL  string
-	PublishedAt *time.Time
-	SourceID    string `gorm:"unique,index"` // Vimeo, Youtube or Feedly ID, depending on the type
+	Model
+
+	RefreshedAt *time.Time `json:"refreshedAt"`
+	Order       int        `gorm:"index" json:"order"`
+	SourceType  string     `json:"sourceType"`
+	LangIsoCode string     `json:"lang"`
+	Title       string     `json:"title"`
+	ShortTitle  string     `json:"shortTitle"`
+	IconURL     string     `json:"iconUrl"`
+	CoverURL    string     `json:"coverUrl"`
+	Description string     `json:"description"`
+	SkateSource bool       `gorm:"default:true" json:"skateSource"`
+	WebsiteURL  string     `json:"websiteUrl"`
+	PublishedAt *time.Time `json:"publishedAt"`
+	SourceID    string     `gorm:"unique,index" json:"sourceId"` // Vimeo, Youtube or Feedly ID, depending on the type
 
 	Contents []Content
 }
 
 type Content struct {
-	ID        string `gorm:"primaryKey"`
-	CreatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID        string         `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time      `json:"createdAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
 
-	SourceID     uint
-	ContentID    string `gorm:"unique,index"` // Youtube or Vimeo ID or Feedly ID
-	PublishedAt  time.Time
-	Title        string
-	ContentURL   string // Youtube or Vimeo video url or article URL
-	ThumbnailURL string
-	RawSummary   string
-	Summary      string
-	RawContent   string
-	Content      string
-	Author       *string // For feedly article
-	Type         string
+	SourceID     uint      `json:"sourceId"`
+	ContentID    string    `gorm:"unique,index" json:"contentId"` // Youtube or Vimeo ID or Feedly ID
+	PublishedAt  time.Time `json:"publishedAt"`
+	Title        string    `json:"title"`
+	ContentURL   string    `json:"contentUrl"` // Youtube or Vimeo video url or article URL
+	ThumbnailURL string    `json:"thumbnailUrl"`
+	RawSummary   string    `json:"rawSummary"`
+	Summary      string    `json:"summary"`
+	RawContent   string    `json:"rawContent"`
+	Content      string    `json:"content"`
+	Author       *string   `json:"author"` // For feedly article
+	Type         string    `json:"type"`
 }
 
 func (c *Content) BeforeCreate(tx *gorm.DB) (err error) {
