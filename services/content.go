@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/model"
 	"gorm.io/gorm"
 )
@@ -16,12 +17,12 @@ func NewContentService(db *gorm.DB) *ContentService {
 	return &ContentService{db}
 }
 
-func (s *ContentService) Find(sourceTypes []string, page int) ([]model.Content, error) {
+func (s *ContentService) Find(sourceTypes []string, page int) (*database.Pagination[model.Content], error) {
 	var contents []model.Content
 
 	log.Println("sourceTypes", sourceTypes)
 
-	tx := s.db.Order("\"published_at desc\"").Session(&gorm.Session{})
+	tx := s.db.Model(contents).Order("contents.published_at desc").Session(&gorm.Session{})
 
 	if len(sourceTypes) > 0 {
 		tx = tx.
@@ -30,25 +31,36 @@ func (s *ContentService) Find(sourceTypes []string, page int) ([]model.Content, 
 			Session(&gorm.Session{})
 	}
 
-	tx = tx.Limit(50).
-		Offset((page - 1) * 50).
+	pagination := &database.Pagination[model.Content]{
+		PerPage: 50,
+		Page:    page,
+	}
+
+	tx = tx.
+		Scopes(pagination.Scope()).
 		Find(&contents)
 
 	if tx.Error != nil {
-		return contents, tx.Error
+		return pagination, tx.Error
 	}
 
-	return contents, nil
+	pagination.Items = contents
+
+	return pagination, nil
 }
 
 func (s *ContentService) FindFromSource(sourceID string, page int) ([]model.Content, error) {
 	var contents []model.Content
 
+	pagination := &database.Pagination[model.Content]{
+		PerPage: 50,
+		Page:    page,
+	}
+
 	err := s.db.Find(&contents).
 		Order("\"published_at desc\"").
 		Joins(fmt.Sprintf("left join contents on sources.id = %s", sourceID)).
-		Limit(50).
-		Offset((page - 1) * 50).
+		Scopes(pagination.Scope()).
 		Error
 
 	if err != nil {
