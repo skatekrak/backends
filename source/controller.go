@@ -93,7 +93,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 		CoverURL:    data.CoverURL,
 		IconURL:     data.IconURL,
 		WebsiteURL:  body.URL,
-		PublishedAt: &data.PublishedAt,
+		PublishedAt: data.PublishedAt,
 	}
 
 	if err := c.s.Create(&source); err != nil {
@@ -177,7 +177,7 @@ func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 					IconURL:     s.IconURL,
 					WebsiteURL:  s.WebsiteURL,
 					SkateSource: s.SkateSource,
-					PublishedAt: &s.PublishedAt,
+					PublishedAt: s.PublishedAt,
 					LangIsoCode: s.Lang,
 				})
 				index++

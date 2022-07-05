@@ -14,7 +14,7 @@ type ChannelFetchData struct {
 	Description string
 	IconURL     string
 	CoverURL    string
-	PublishedAt time.Time
+	PublishedAt *time.Time
 	WebsiteURL  string
 	SourceID    string
 	SkateSource bool

@@ -33,7 +33,7 @@ func (fe *Fetcher) FetchChannelData(url string) (ChannelFetchData, error) {
 			Description: channel.Snippet.Description,
 			IconURL:     youtube.GetBestThumbnail(channel.Snippet.Thumbnails),
 			CoverURL:    channel.BrandingSettings.Image.BannerExternalURL,
-			PublishedAt: channel.Snippet.PublishedAt,
+			PublishedAt: &channel.Snippet.PublishedAt,
 		}, nil
 	} else if sourceType == "vimeo" {
 		userID, err := vimeo.GetUserID(url)
@@ -51,7 +51,7 @@ func (fe *Fetcher) FetchChannelData(url string) (ChannelFetchData, error) {
 		return ChannelFetchData{
 			Title:       data.Name,
 			Description: data.Bio,
-			PublishedAt: data.CreatedTime,
+			PublishedAt: &data.CreatedTime,
 			IconURL:     coverURL,
 			CoverURL:    coverURL,
 		}, nil
