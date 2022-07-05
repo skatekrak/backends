@@ -154,6 +154,11 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 }
 
 func formatContent(content fetchers.ContentFetchData, source *model.Source) *model.Content {
+	contentType := "video"
+	if source.SourceType == "rss" {
+		contentType = "article"
+	}
+
 	return &model.Content{
 		SourceID:     source.ID,
 		ContentID:    content.ContentID,
@@ -163,6 +168,6 @@ func formatContent(content fetchers.ContentFetchData, source *model.Source) *mod
 		ContentURL:   content.ContentURL,
 		RawSummary:   content.RawDescription,
 		Summary:      content.Description,
-		Type:         "video",
+		Type:         contentType,
 	}
 }
