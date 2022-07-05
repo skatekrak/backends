@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/skatekrak/scribe/clients/feedly"
 	"github.com/skatekrak/scribe/clients/vimeo"
 	"github.com/skatekrak/scribe/clients/youtube"
 	"github.com/skatekrak/scribe/fetchers"
@@ -21,7 +22,8 @@ func Route(app *fiber.App, db *gorm.DB) {
 
 	youtubeClient := youtube.New(os.Getenv("YOUTUBE_API_KEY"))
 	vimeoClient := vimeo.New(os.Getenv("VIMEO_API_KEY"))
-	fetcher := fetchers.New(vimeoClient, youtubeClient, nil)
+	feedlyClient := feedly.New(os.Getenv("FEEDLY_API_KEY"))
+	fetcher := fetchers.New(vimeoClient, youtubeClient, feedlyClient)
 
 	sourceService := services.NewSourceService(db)
 	contentService := services.NewContentService(db)
