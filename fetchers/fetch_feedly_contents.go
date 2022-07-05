@@ -33,7 +33,7 @@ func (fe *Fetcher) FetchFeedlyContents(categoryID string) ([]ContentFetchData, e
 			Title:          item.Title,
 			Description:    html2text.HTML2Text(item.Summary.Content),
 			RawDescription: item.Summary.Content,
-			PublishedAt:    time.Unix(int64(item.Crawled), 0),
+			PublishedAt:    time.UnixMilli(int64(item.Published)),
 			ThumbnailURL:   item.Visual.URL,
 			ContentID:      item.ID,
 			ContentURL:     url,
