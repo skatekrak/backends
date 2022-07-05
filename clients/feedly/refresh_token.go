@@ -2,8 +2,10 @@ package feedly
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -19,7 +21,8 @@ type FeedlyRefreshTokenResopnse struct {
 }
 
 func (f *FeedlyClient) RefreshToken() (string, error) {
-	req, err := http.Get(fmt.Sprintf("https://cloud.feedly.com/v3/auth/token?refresh_token=%s&client_id=%s&client_secret=%s&grant_type=%s", f.refreshToken, "feedlydev", "feedlydev", "refresh_token"))
+	url := fmt.Sprintf("https://cloud.feedly.com/v3/auth/token?refresh_token=%s&client_id=%s&client_secret=%s&grant_type=%s", f.refreshToken, "feedlydev", "feedlydev", "refresh_token")
+	req, err := http.Post(url, "application/json", nil)
 	if err != nil {
 		return "", err
 	}
@@ -34,7 +37,12 @@ func (f *FeedlyClient) RefreshToken() (string, error) {
 		return "", err
 	}
 
+	if data.AccessToken == "" {
+		return "", errors.New("empty access token")
+	}
+
 	f.accessToken = data.AccessToken
+	log.Println("Feedly token refreshed")
 
 	return data.AccessToken, nil
 }

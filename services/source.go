@@ -39,7 +39,7 @@ func (s *SourceService) GetBySourceID(sourceID string) (model.Source, error) {
 
 func (s *SourceService) GetNextOrder() (int, error) {
 	var sources []model.Source
-	if err := s.db.Order("\"order desc\"").Limit(1).Find(&sources).Error; err != nil {
+	if err := s.db.Order("\"order asc\"").Limit(1).Find(&sources).Error; err != nil {
 		return 0, err
 	}
 
@@ -59,4 +59,8 @@ func (s *SourceService) Update(source *model.Source) error {
 
 func (s *SourceService) Delete(source *model.Source) error {
 	return s.db.Unscoped().Delete(&source).Error
+}
+
+func (s *SourceService) AddMany(sources []*model.Source) error {
+	return s.db.CreateInBatches(sources, len(sources)).Error
 }

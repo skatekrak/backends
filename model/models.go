@@ -23,7 +23,6 @@ type Source struct {
 	Order       int `gorm:"index"`
 	SourceType  string
 	LangIsoCode string
-	FeedlyID    string
 	Title       string
 	ShortTitle  string
 	IconURL     string

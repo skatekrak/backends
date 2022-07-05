@@ -1,6 +1,7 @@
 package source
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
+	"gorm.io/gorm"
 )
 
 type Controller struct {
@@ -139,4 +141,55 @@ func (c *Controller) Delete(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{
 		"message": "Source deleted",
 	})
+}
+
+func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
+	data, err := c.fetcher.FetchFeedlySources(c.feedlyCategoryID)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	nextOrder, err := c.s.GetNextOrder()
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Couldn't get the next order",
+			"error":   err.Error(),
+		})
+	}
+
+	sources := []*model.Source{}
+	index := 0
+
+	for _, s := range data {
+		if _, err := c.s.GetBySourceID(s.SourceID); err != nil {
+			// Only attempt to create source that are not already here
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				sources = append(sources, &model.Source{
+					Order:       nextOrder + index,
+					SourceType:  "rss",
+					SourceID:    s.SourceID,
+					Title:       s.Title,
+					Description: s.Description,
+					ShortTitle:  s.Title,
+					CoverURL:    s.CoverURL,
+					IconURL:     s.IconURL,
+					WebsiteURL:  s.WebsiteURL,
+					SkateSource: s.SkateSource,
+					PublishedAt: &s.PublishedAt,
+					LangIsoCode: s.Lang,
+				})
+				index++
+			}
+		}
+	}
+
+	if err := c.s.AddMany(sources); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(sources)
 }

@@ -21,15 +21,17 @@ type FeedlyCollectionFeed struct {
 	Website     string   `json:"website"`
 	Subscribers int      `json:"subscribers"`
 	IconURL     string   `json:"iconUrl"`
+	Description string   `json:"description"`
 }
 
 type FeedlyCollectionResponse struct {
-	Customizable bool   `json:"customizable"`
-	Label        string `json:"label"`
-	Created      int    `json:"created"`
-	Enterprise   bool   `json:"enterprise"`
-	NumFeeds     int    `json:"numFeeds"`
-	ID           string `json:"id"`
+	Customizable bool                   `json:"customizable"`
+	Label        string                 `json:"label"`
+	Created      int                    `json:"created"`
+	Enterprise   bool                   `json:"enterprise"`
+	NumFeeds     int                    `json:"numFeeds"`
+	ID           string                 `json:"id"`
+	Feeds        []FeedlyCollectionFeed `json:"feeds"`
 }
 
 func (f *FeedlyClient) FetchSources(categoryID string) ([]FeedlyCollectionResponse, error) {
@@ -40,6 +42,7 @@ func (f *FeedlyClient) FetchSources(categoryID string) ([]FeedlyCollectionRespon
 		return []FeedlyCollectionResponse{}, err
 	}
 
+	req.Header.Set("Authorization", f.accessToken)
 	client := &http.Client{}
 	response, err := client.Do(req)
 
