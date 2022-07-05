@@ -7,26 +7,10 @@ import (
 	"github.com/skatekrak/scribe/services"
 )
 
-const context_lang = "lang"
-
 type Controller struct {
 	s *services.LangService
 }
 
-func (c *Controller) LoaderHandler() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		isoCode := ctx.Params("isoCode")
-
-		lang, err := c.s.Get(isoCode)
-		if err != nil {
-			return fiber.NewError(fiber.StatusNotFound, "Lang not found")
-		}
-
-		ctx.Locals(context_lang, lang)
-		return ctx.Next()
-	}
-
-}
 func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 	langs, err := c.s.FindAll()
 	if err != nil {
@@ -58,7 +42,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) Update(ctx *fiber.Ctx) error {
-	lang := ctx.Locals(context_lang).(model.Lang)
+	lang := middlewares.GetLang(ctx)
 	body := ctx.Locals(middlewares.BODY).(UpdateBody)
 
 	lang.ImageURL = body.ImageURL
@@ -70,7 +54,7 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) Delete(ctx *fiber.Ctx) error {
-	lang := ctx.Locals(context_lang).(model.Lang)
+	lang := middlewares.GetLang(ctx)
 
 	if err := c.s.Delete(&lang); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

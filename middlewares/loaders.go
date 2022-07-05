@@ -28,3 +28,23 @@ func SourceLoader(s *services.SourceService) fiber.Handler {
 func GetSource(ctx *fiber.Ctx) model.Source {
 	return ctx.Locals(SOURCE_LOADER_LOCAL).(model.Source)
 }
+
+const LANG_LOADER_LOCAL = "isoCode"
+
+func LangLoader(s *services.LangService) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		isoCode := ctx.Params("isoCode")
+
+		lang, err := s.Get(isoCode)
+		if err != nil {
+			return fiber.NewError(fiber.StatusNotFound, "Lang not found")
+		}
+
+		ctx.Locals(LANG_LOADER_LOCAL, lang)
+		return ctx.Next()
+	}
+}
+
+func GetLang(ctx *fiber.Ctx) model.Lang {
+	return ctx.Locals(LANG_LOADER_LOCAL).(model.Lang)
+}

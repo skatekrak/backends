@@ -31,11 +31,12 @@ func Route(app *fiber.App, db *gorm.DB) {
 	}
 
 	auth := middlewares.Authorization(apiKey)
+	langLoader := middlewares.LangLoader(langService)
 
 	router := app.Group("/langs")
 	router.Get("", controller.FindAll)
 
 	router.Post("", auth, middlewares.JSONHandler[CreateBody](), controller.Create)
-	router.Patch("/:isoCode", auth, controller.LoaderHandler(), middlewares.JSONHandler[UpdateBody](), controller.Update)
-	router.Delete("/:isoCode", auth, controller.LoaderHandler(), controller.Delete)
+	router.Patch("/:isoCode", auth, langLoader, middlewares.JSONHandler[UpdateBody](), controller.Update)
+	router.Delete("/:isoCode", auth, langLoader, controller.Delete)
 }
