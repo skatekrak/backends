@@ -21,7 +21,7 @@ type Lang struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
 	ImageURL  string         `json:"imageUrl"`
 
-	Sources []Source
+	Sources []Source `json:"-"`
 }
 
 type Source struct {
@@ -41,7 +41,7 @@ type Source struct {
 	PublishedAt *time.Time `json:"publishedAt"`
 	SourceID    string     `gorm:"unique,index" json:"sourceId"` // Vimeo, Youtube or Feedly ID, depending on the type
 
-	Contents []Content
+	Contents []Content `json:"-"`
 }
 
 type Content struct {
