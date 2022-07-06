@@ -10,6 +10,17 @@ type Controller struct {
 	s *services.ContentService
 }
 
+// Find contents
+// @Tags contents
+
+// @Param	sourceTypes	query	[]string	false "filter contents by source types" Enums(rss,vimeo,youtube)
+// @Param	sources 	query	[]int		false "filter contents by source id"
+// @Param	page		query	int			false "Fetch page"						minimum(1)
+
+// @Success 200 {object} database.Pagination{Items=[]model.Content}
+// @Failure 500 {object} map[string]interface{}
+
+// @Router /contents [get]
 func (c *Controller) Find(ctx *fiber.Ctx) error {
 	query := ctx.Locals(middlewares.QUERY).(FindQuery)
 

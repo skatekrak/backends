@@ -11,18 +11,18 @@ type Model struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt" swaggertype:"string"`
 }
 
 type Lang struct {
 	IsoCode   string         `gorm:"primaryKey" json:"isoCode"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt" swaggertype:"string"`
 	ImageURL  string         `json:"imageUrl"`
 
 	Sources []Source `json:"-"`
-}
+} // @name Lang
 
 type Source struct {
 	Model
@@ -43,12 +43,12 @@ type Source struct {
 	SourceID    string     `gorm:"unique,index" json:"sourceId"` // Vimeo, Youtube or Feedly ID, depending on the type
 
 	Contents []Content `json:"-"`
-}
+} // @name Source
 
 type Content struct {
 	ID        string         `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time      `json:"createdAt"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt" swaggertype:"string"`
 
 	SourceID     uint      `json:"sourceId"`
 	ContentID    string    `gorm:"uniqueIndex" json:"contentId"` // Youtube or Vimeo ID or Feedly ID
@@ -62,7 +62,7 @@ type Content struct {
 	Content      string    `json:"content"`
 	Author       *string   `json:"author"` // For feedly article
 	Type         string    `json:"type"`
-}
+} // @name Content
 
 func (c *Content) BeforeCreate(tx *gorm.DB) (err error) {
 	c.ID = uuid.NewString()

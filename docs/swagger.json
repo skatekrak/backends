@@ -1,0 +1,167 @@
+{
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Document for the Scribe API",
+        "title": "Scribe API",
+        "contact": {
+            "name": "Maxime Cattet",
+            "email": "m[at]skatekrak.com"
+        },
+        "license": {
+            "name": "AGPLv3"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/contents": {
+            "get": {
+                "tags": [
+                    "contents"
+                ],
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "rss",
+                                "vimeo",
+                                "youtube"
+                            ],
+                            "type": "string"
+                        },
+                        "description": "filter contents by source types",
+                        "name": "sourceTypes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "filter contents by source id",
+                        "name": "sources",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Fetch page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/Pagination"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Items": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/Content"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Content": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "description": "For feedly article",
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "contentId": {
+                    "description": "Youtube or Vimeo ID or Feedly ID",
+                    "type": "string"
+                },
+                "contentUrl": {
+                    "description": "Youtube or Vimeo video url or article URL",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "publishedAt": {
+                    "type": "string"
+                },
+                "rawContent": {
+                    "type": "string"
+                },
+                "rawSummary": {
+                    "type": "string"
+                },
+                "sourceId": {
+                    "type": "integer"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "thumbnailUrl": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "Pagination": {
+            "type": "object",
+            "properties": {
+                "items": {},
+                "page": {
+                    "type": "integer"
+                },
+                "perPage": {
+                    "type": "integer"
+                },
+                "totalPages": {
+                    "type": "integer"
+                },
+                "totalResults": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

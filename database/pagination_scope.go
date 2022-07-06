@@ -13,7 +13,7 @@ type Pagination struct {
 	TotalResults int64       `json:"totalResults"`
 	TotalPages   int         `json:"totalPages"`
 	Items        interface{} `json:"items"`
-}
+} // @name Pagination
 
 func (p *Pagination) GetPageSize() int {
 	if p.PerPage == 0 {

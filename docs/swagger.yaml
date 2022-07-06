@@ -1,0 +1,109 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  Content:
+    properties:
+      author:
+        description: For feedly article
+        type: string
+      content:
+        type: string
+      contentId:
+        description: Youtube or Vimeo ID or Feedly ID
+        type: string
+      contentUrl:
+        description: Youtube or Vimeo video url or article URL
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: string
+      publishedAt:
+        type: string
+      rawContent:
+        type: string
+      rawSummary:
+        type: string
+      sourceId:
+        type: integer
+      summary:
+        type: string
+      thumbnailUrl:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  Pagination:
+    properties:
+      items: {}
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalPages:
+        type: integer
+      totalResults:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: m[at]skatekrak.com
+    name: Maxime Cattet
+  description: Document for the Scribe API
+  license:
+    name: AGPLv3
+  title: Scribe API
+  version: "1.0"
+paths:
+  /contents:
+    get:
+      parameters:
+      - description: filter contents by source types
+        in: query
+        items:
+          enum:
+          - rss
+          - vimeo
+          - youtube
+          type: string
+        name: sourceTypes
+        type: array
+      - description: filter contents by source id
+        in: query
+        items:
+          type: integer
+        name: sources
+        type: array
+      - description: Fetch page
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/Pagination'
+            - properties:
+                Items:
+                  items:
+                    $ref: '#/definitions/Content'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      tags:
+      - contents
+produces:
+- application/json
+swagger: "2.0"
