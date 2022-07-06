@@ -7,33 +7,33 @@ import (
 	"gorm.io/gorm"
 )
 
-type Pagination[T interface{}] struct {
-	PerPage      int   `json:"perPage" query:"perPage"`
-	Page         int   `json:"page" query:"page"`
-	TotalResults int64 `json:"totalResults"`
-	TotalPages   int   `json:"totalPages"`
-	Items        []T   `json:"items"`
+type Pagination struct {
+	PerPage      int         `json:"perPage" query:"perPage"`
+	Page         int         `json:"page" query:"page"`
+	TotalResults int64       `json:"totalResults"`
+	TotalPages   int         `json:"totalPages"`
+	Items        interface{} `json:"items"`
 }
 
-func (p *Pagination[T]) GetPageSize() int {
+func (p *Pagination) GetPageSize() int {
 	if p.PerPage == 0 {
 		return 20
 	}
 	return p.PerPage
 }
 
-func (p *Pagination[T]) GetOffset() int {
+func (p *Pagination) GetOffset() int {
 	return (p.GetPage() - 1) * p.GetPageSize()
 }
 
-func (p *Pagination[T]) GetPage() int {
+func (p *Pagination) GetPage() int {
 	if p.Page == 0 {
 		return 1
 	}
 	return p.Page
 }
 
-func (p *Pagination[T]) Scope() func(db *gorm.DB) *gorm.DB {
+func (p *Pagination) Scope() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		pageSize := p.GetPageSize()
 

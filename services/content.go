@@ -16,7 +16,7 @@ func NewContentService(db *gorm.DB) *ContentService {
 	return &ContentService{db}
 }
 
-func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*database.Pagination[model.Content], error) {
+func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*database.Pagination, error) {
 	var contents []model.Content
 
 	tx := s.db.Model(contents).Order("contents.published_at desc").Session(&gorm.Session{})
@@ -36,7 +36,7 @@ func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*d
 		tx = tx.Where("sources.id in ?", sources)
 	}
 
-	pagination := &database.Pagination[model.Content]{
+	pagination := &database.Pagination{
 		PerPage: 50,
 		Page:    page,
 	}
@@ -54,10 +54,10 @@ func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*d
 	return pagination, nil
 }
 
-func (s *ContentService) FindFromSource(sourceID string, page int) ([]model.Content, error) {
+func (s *ContentService) FindFromSource(sourceID string, page int) (database.Pagination, error) {
 	var contents []model.Content
 
-	pagination := &database.Pagination[model.Content]{
+	pagination := &database.Pagination{
 		PerPage: 50,
 		Page:    page,
 	}
@@ -68,11 +68,13 @@ func (s *ContentService) FindFromSource(sourceID string, page int) ([]model.Cont
 		Scopes(pagination.Scope()).
 		Error
 
+	pagination.Items = contents
+
 	if err != nil {
-		return contents, err
+		return *pagination, err
 	}
 
-	return contents, err
+	return *pagination, err
 }
 
 func (s *ContentService) AddMany(contents []*model.Content, sources []*model.Source) error {
