@@ -13,7 +13,7 @@ type Controller struct {
 func (c *Controller) Find(ctx *fiber.Ctx) error {
 	query := ctx.Locals(middlewares.QUERY).(FindQuery)
 
-	pagination, err := c.s.Find(query.SourceTypes, query.Page)
+	pagination, err := c.s.Find(query.SourceTypes, query.Sources, query.Page)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),

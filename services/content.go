@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/model"
@@ -17,18 +16,24 @@ func NewContentService(db *gorm.DB) *ContentService {
 	return &ContentService{db}
 }
 
-func (s *ContentService) Find(sourceTypes []string, page int) (*database.Pagination[model.Content], error) {
+func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*database.Pagination[model.Content], error) {
 	var contents []model.Content
-
-	log.Println("sourceTypes", sourceTypes)
 
 	tx := s.db.Model(contents).Order("contents.published_at desc").Session(&gorm.Session{})
 
+	if len(sourceTypes)+len(sources) > 0 {
+		tx = tx.
+			Joins("JOIN sources ON sources.id = contents.source_id")
+	}
+
 	if len(sourceTypes) > 0 {
 		tx = tx.
-			Joins("JOIN sources ON sources.id = contents.source_id").
 			Where("sources.source_type in ?", sourceTypes).
 			Session(&gorm.Session{})
+	}
+
+	if len(sources) > 0 {
+		tx = tx.Where("sources.id in ?", sources)
 	}
 
 	pagination := &database.Pagination[model.Content]{

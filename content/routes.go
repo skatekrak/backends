@@ -9,6 +9,7 @@ import (
 
 type FindQuery struct {
 	SourceTypes []string `json:"sourceTypes" validate:"dive,eq=vimeo|eq=youtube|eq=rss"`
+	Sources     []int    `json:"sources"`
 	Page        int      `json:"page"`
 }
 
