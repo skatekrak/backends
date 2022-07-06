@@ -195,3 +195,33 @@ func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusOK).JSON(sources)
 }
+
+func (c *Controller) UpdateOrder(ctx *fiber.Ctx) error {
+	body := ctx.Locals(middlewares.BODY).(UpdateOrderBody)
+
+	orders := make([]int, len(body))
+	updates := map[int]map[string]interface{}{}
+
+	for key, order := range body {
+		if helpers.Has(orders, order) {
+			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "You have an duplicate order",
+			})
+		}
+
+		orders = append(orders, order)
+
+		updates[key] = map[string]interface{}{
+			"order": order,
+		}
+	}
+
+	sources, err := c.s.UpdateOrder(updates)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(sources)
+}

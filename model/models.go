@@ -51,7 +51,7 @@ type Content struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
 
 	SourceID     uint      `json:"sourceId"`
-	ContentID    string    `gorm:"unique,index" json:"contentId"` // Youtube or Vimeo ID or Feedly ID
+	ContentID    string    `gorm:"uniqueIndex" json:"contentId"` // Youtube or Vimeo ID or Feedly ID
 	PublishedAt  time.Time `json:"publishedAt"`
 	Title        string    `json:"title"`
 	ContentURL   string    `json:"contentUrl"` // Youtube or Vimeo video url or article URL

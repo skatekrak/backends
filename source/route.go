@@ -39,6 +39,8 @@ type UpdateBody struct {
 	WebsiteURL    *string `json:"websiteURL"`
 }
 
+type UpdateOrderBody = map[int]int
+
 func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
 
@@ -66,7 +68,7 @@ func Route(app *fiber.App, db *gorm.DB) {
 	router.Get("", middlewares.QueryHandler[FindAllQuery](), controller.FindAll)
 	router.Post("", auth, middlewares.JSONHandler[CreateBody](), controller.Create)
 	router.Post("/sync-feedly", auth, controller.RefreshFeedly)
+	router.Patch("/order", auth, middlewares.JSONHandler[UpdateOrderBody](), controller.UpdateOrder)
 	router.Patch("/:sourceID", auth, sourceLoader, middlewares.JSONHandler[UpdateBody](), controller.Update)
 	router.Delete("/:sourceID", auth, sourceLoader, controller.Delete)
-
 }
