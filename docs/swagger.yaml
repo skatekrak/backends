@@ -38,6 +38,13 @@ definitions:
       type:
         type: string
     type: object
+  JSONError:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
   Pagination:
     properties:
       items: {}
@@ -100,8 +107,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/JSONError'
       tags:
       - contents
 produces:
