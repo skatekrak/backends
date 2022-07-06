@@ -31,6 +31,7 @@ type Source struct {
 	Order       int        `gorm:"index" json:"order"`
 	SourceType  string     `json:"sourceType"`
 	LangIsoCode string     `json:"lang"`
+	Lang        Lang       `json:"-"`
 	Title       string     `json:"title"`
 	ShortTitle  string     `json:"shortTitle"`
 	IconURL     string     `json:"iconUrl"`

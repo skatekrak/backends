@@ -178,7 +178,9 @@ func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 					WebsiteURL:  s.WebsiteURL,
 					SkateSource: s.SkateSource,
 					PublishedAt: s.PublishedAt,
-					LangIsoCode: s.Lang,
+					Lang: model.Lang{
+						IsoCode: s.Lang,
+					},
 				})
 				index++
 			}
