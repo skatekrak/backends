@@ -239,6 +239,262 @@
                     }
                 }
             }
+        },
+        "/sources": {
+            "get": {
+                "tags": [
+                    "sources"
+                ],
+                "summary": "Fetch all sources",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "rss",
+                                "vimeo",
+                                "youtube"
+                            ],
+                            "type": "string"
+                        },
+                        "description": "Filter by source types",
+                        "name": "types",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/Source"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "sources"
+                ],
+                "summary": "Add a new source",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Source"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
+        "/sources/order": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "sources"
+                ],
+                "summary": "Update orders of the sources",
+                "parameters": [
+                    {
+                        "description": "Update body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/Source"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
+        "/sources/sync-feedly": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "sources"
+                ],
+                "summary": "Query sources used in feedly and add missing ones in Scribe",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/Source"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
+        "/sources/{sourceID}": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "sources"
+                ],
+                "summary": "Update a source",
+                "parameters": [
+                    {
+                        "description": "Update body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateBody"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID of the source",
+                        "name": "sourceID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Source"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
+        "/sources/{sourcesID}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "sources"
+                ],
+                "summary": "Delete a source",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the source",
+                        "name": "sourceID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/JSONMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -291,6 +547,31 @@
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreateBody": {
+            "type": "object",
+            "required": [
+                "lang",
+                "type"
+            ],
+            "properties": {
+                "isSkateSource": {
+                    "type": "boolean"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "vimeo",
+                        "youtube"
+                    ]
+                },
+                "url": {
                     "type": "string"
                 }
             }
@@ -349,6 +630,92 @@
                 },
                 "totalResults": {
                     "type": "integer"
+                }
+            }
+        },
+        "Source": {
+            "type": "object",
+            "properties": {
+                "coverUrl": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "iconUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "publishedAt": {
+                    "type": "string"
+                },
+                "refreshedAt": {
+                    "type": "string"
+                },
+                "shortTitle": {
+                    "type": "string"
+                },
+                "skateSource": {
+                    "type": "boolean"
+                },
+                "sourceId": {
+                    "description": "Vimeo, Youtube or Feedly ID, depending on the type",
+                    "type": "string"
+                },
+                "sourceType": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "websiteUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "UpdateBody": {
+            "type": "object",
+            "properties": {
+                "coverURL": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "iconURL": {
+                    "type": "string"
+                },
+                "isSkateSource": {
+                    "type": "boolean"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "shortTitle": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "websiteURL": {
+                    "type": "string"
                 }
             }
         }

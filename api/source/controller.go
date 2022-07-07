@@ -24,6 +24,13 @@ type Controller struct {
 	feedlyCategoryID string
 }
 
+// Fetch all sources
+// @Summary  Fetch all sources
+// @Tags      sources
+// @Success  200    {array}   []model.Source
+// @Failure  500    {object}  api.JSONError
+// @Param    types  query     []string  false  "Filter by source types"  Enums(rss,vimeo,youtube)
+// @Router   /sources [get]
 func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 	query := ctx.Locals(middlewares.QUERY).(FindAllQuery)
 
@@ -37,6 +44,15 @@ func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(sources)
 }
 
+// Add a new source
+// @Summary   Add a new source
+// @Tags      sources
+// @Security  ApiKeyAuth
+// @Success   200   {object}  model.Source
+// @Failure   404   {object}  api.JSONError
+// @Failure   500   {object}  api.JSONError
+// @Param     body  body      CreateBody  true  "body"
+// @Router    /sources [post]
 func (c *Controller) Create(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(CreateBody)
 
@@ -106,6 +122,15 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(source)
 }
 
+// Update a source
+// @Summary   Update a source
+// @Security  ApiKeyAuth
+// @Tags     sources
+// @Success   200       {object}  model.Source
+// @Failure   500       {object}  api.JSONError
+// @Param     body      body      UpdateBody  true  "Update body"
+// @Param     sourceID  path      integer     true  "ID of the source"
+// @Router    /sources/{sourceID} [patch]
 func (c *Controller) Update(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(UpdateBody)
 	source := middlewares.GetSource(ctx)
@@ -128,6 +153,15 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(source)
 }
 
+// Delete a source
+// @Summary   Delete a source
+// @Security  ApiKeyAuth
+// @Tags      sources
+// @Success   200       {object}  api.JSONMessage
+// @Failure   404       {object}  api.JSONError
+// @Failure   500       {object}  api.JSONError
+// @Param     sourceID  path      integer  true  "ID of the source"
+// @Router    /sources/{sourcesID} [delete]
 func (c *Controller) Delete(ctx *fiber.Ctx) error {
 	source := middlewares.GetSource(ctx)
 
@@ -143,6 +177,13 @@ func (c *Controller) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
+// Refresh feedly sources
+// @Summary   Query sources used in feedly and add missing ones in Scribe
+// @Security  ApiKeyAuth
+// @Tags      sources
+// @Success   200  {array}   []model.Source
+// @Failure   500  {object}  api.JSONError
+// @Router    /sources/sync-feedly [patch]
 func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 	data, err := c.fetcher.FetchFeedlySources(c.feedlyCategoryID)
 	if err != nil {
@@ -196,6 +237,15 @@ func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(sources)
 }
 
+// Update orders of the sources
+// @Summary   Update orders of the sources
+// @Security  ApiKeyAuth
+// @Tags      sources
+// @Success   200   {array}   []model.Source
+// @Failure   400   {object}  api.JSONError
+// @Failure   500   {object}  api.JSONError
+// @Param     body  body      UpdateBody  true  "Update body"
+// @Router    /sources/order [patch]
 func (c *Controller) UpdateOrder(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(UpdateOrderBody)
 

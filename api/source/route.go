@@ -15,18 +15,18 @@ import (
 
 type FindAllQuery struct {
 	Types []string `query:"types" validate:"dive,eq=vimeo|eq=youtube|eq=rss"`
-}
+} // @Name FindAllQuery
 
 type CreateBody struct {
 	URL           string `json:"url" validated:"required"`
 	LangIsoCode   string `json:"lang" validate:"required"`
 	IsSkateSource bool   `json:"isSkateSource"`
 	Type          string `json:"type" validate:"required,oneof=vimeo youtube"`
-}
+} // @Name CreateBody
 
 type SourceURI struct {
 	SourceID string `uri:"sourceID" validate:"required"`
-}
+} // @Name SourceURI
 
 type UpdateBody struct {
 	LangIsoCode   *string `json:"lang"`
@@ -37,7 +37,7 @@ type UpdateBody struct {
 	IconURL       *string `json:"iconURL"`
 	CoverURL      *string `json:"coverURL"`
 	WebsiteURL    *string `json:"websiteURL"`
-}
+} // @Name UpdateBody
 
 type UpdateOrderBody = map[int]int
 

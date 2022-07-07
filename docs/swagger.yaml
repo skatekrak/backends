@@ -38,6 +38,23 @@ definitions:
       type:
         type: string
     type: object
+  CreateBody:
+    properties:
+      isSkateSource:
+        type: boolean
+      lang:
+        type: string
+      type:
+        enum:
+        - vimeo
+        - youtube
+        type: string
+      url:
+        type: string
+    required:
+    - lang
+    - type
+    type: object
   JSONError:
     properties:
       error:
@@ -74,6 +91,63 @@ definitions:
         type: integer
       totalResults:
         type: integer
+    type: object
+  Source:
+    properties:
+      coverUrl:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      iconUrl:
+        type: string
+      id:
+        type: integer
+      lang:
+        type: string
+      order:
+        type: integer
+      publishedAt:
+        type: string
+      refreshedAt:
+        type: string
+      shortTitle:
+        type: string
+      skateSource:
+        type: boolean
+      sourceId:
+        description: Vimeo, Youtube or Feedly ID, depending on the type
+        type: string
+      sourceType:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      websiteUrl:
+        type: string
+    type: object
+  UpdateBody:
+    properties:
+      coverURL:
+        type: string
+      description:
+        type: string
+      iconURL:
+        type: string
+      isSkateSource:
+        type: boolean
+      lang:
+        type: string
+      shortTitle:
+        type: string
+      title:
+        type: string
+      websiteURL:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -225,6 +299,166 @@ paths:
             $ref: '#/definitions/JSONError'
       tags:
       - langs
+  /sources:
+    get:
+      parameters:
+      - description: Filter by source types
+        in: query
+        items:
+          enum:
+          - rss
+          - vimeo
+          - youtube
+          type: string
+        name: types
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/Source'
+              type: array
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Fetch all sources
+      tags:
+      - sources
+    post:
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateBody'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Source'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Add a new source
+      tags:
+      - sources
+  /sources/{sourceID}:
+    patch:
+      parameters:
+      - description: Update body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateBody'
+      - description: ID of the source
+        in: path
+        name: sourceID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Source'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a source
+      tags:
+      - sources
+  /sources/{sourcesID}:
+    delete:
+      parameters:
+      - description: ID of the source
+        in: path
+        name: sourceID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/JSONMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a source
+      tags:
+      - sources
+  /sources/order:
+    patch:
+      parameters:
+      - description: Update body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateBody'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/Source'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update orders of the sources
+      tags:
+      - sources
+  /sources/sync-feedly:
+    patch:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/Source'
+              type: array
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Query sources used in feedly and add missing ones in Scribe
+      tags:
+      - sources
 produces:
 - application/json
 swagger: "2.0"
