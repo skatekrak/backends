@@ -9,3 +9,9 @@ test:
 
 mod:
 	go mod tidy -v
+
+doc:
+	swag init --parseDependency --parseInternal
+
+format:
+	go fmt && swag fmt --exclude="./api/interfaces.go,./model"

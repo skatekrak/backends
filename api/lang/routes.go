@@ -10,8 +10,8 @@ import (
 )
 
 type CreateBody struct {
-	IsoCode  string `json:"isoCode" validate:"required,len=2"`
-	ImageURL string `json:"imageURL" validate:"required"`
+	IsoCode  string `json:"isoCode" binding:"required,len=2"`
+	ImageURL string `json:"imageURL" binding:"required"`
 }
 
 type UpdateBody struct {

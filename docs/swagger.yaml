@@ -45,6 +45,24 @@ definitions:
       message:
         type: string
     type: object
+  JSONMessage:
+    properties:
+      message:
+        type: string
+    type: object
+  Lang:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      imageUrl:
+        type: string
+      isoCode:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   Pagination:
     properties:
       items: {}
@@ -110,6 +128,103 @@ paths:
             $ref: '#/definitions/JSONError'
       tags:
       - contents
+  /langs:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/Lang'
+              type: array
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      tags:
+      - langs
+    post:
+      parameters:
+      - description: language iso code
+        in: body
+        name: isoCode
+        required: true
+        schema:
+          type: string
+      - description: language icon url
+        in: body
+        name: imageURL
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Lang'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      tags:
+      - langs
+  /langs/{isoCode}:
+    delete:
+      parameters:
+      - description: Lang ISO Code
+        in: path
+        name: isoCode
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/JSONMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      tags:
+      - langs
+    patch:
+      parameters:
+      - description: Lang ISO Code
+        in: path
+        name: isoCode
+        required: true
+        type: string
+      - description: new image url
+        in: body
+        name: imageURL
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Lang'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      tags:
+      - langs
 produces:
 - application/json
 swagger: "2.0"

@@ -88,6 +88,157 @@
                     }
                 }
             }
+        },
+        "/langs": {
+            "get": {
+                "tags": [
+                    "langs"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/Lang"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "langs"
+                ],
+                "parameters": [
+                    {
+                        "description": "language iso code",
+                        "name": "isoCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "language icon url",
+                        "name": "imageURL",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Lang"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
+        "/langs/{isoCode}": {
+            "delete": {
+                "tags": [
+                    "langs"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Lang ISO Code",
+                        "name": "isoCode",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/JSONMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "langs"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Lang ISO Code",
+                        "name": "isoCode",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "new image url",
+                        "name": "imageURL",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Lang"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -151,6 +302,34 @@
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "JSONMessage": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "Lang": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "isoCode": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
