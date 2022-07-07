@@ -38,23 +38,6 @@ definitions:
       type:
         type: string
     type: object
-  CreateBody:
-    properties:
-      isSkateSource:
-        type: boolean
-      lang:
-        type: string
-      type:
-        enum:
-        - vimeo
-        - youtube
-        type: string
-      url:
-        type: string
-    required:
-    - lang
-    - type
-    type: object
   JSONError:
     properties:
       error:
@@ -130,7 +113,41 @@ definitions:
       websiteUrl:
         type: string
     type: object
-  UpdateBody:
+  lang.CreateBody:
+    properties:
+      imageURL:
+        type: string
+      isoCode:
+        type: string
+    required:
+    - imageURL
+    - isoCode
+    type: object
+  lang.UpdateBody:
+    properties:
+      imageURL:
+        type: string
+    required:
+    - imageURL
+    type: object
+  source.CreateBody:
+    properties:
+      isSkateSource:
+        type: boolean
+      lang:
+        type: string
+      type:
+        enum:
+        - vimeo
+        - youtube
+        type: string
+      url:
+        type: string
+    required:
+    - lang
+    - type
+    type: object
+  source.UpdateBody:
     properties:
       coverURL:
         type: string
@@ -151,9 +168,7 @@ definitions:
     type: object
 host: localhost:8080
 info:
-  contact:
-    email: m[at]skatekrak.com
-    name: Maxime Cattet
+  contact: {}
   description: Document for the Scribe API
   license:
     name: AGPLv3
@@ -221,18 +236,12 @@ paths:
       - langs
     post:
       parameters:
-      - description: language iso code
+      - description: Create body
         in: body
-        name: isoCode
+        name: body
         required: true
         schema:
-          type: string
-      - description: language icon url
-        in: body
-        name: imageURL
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/lang.CreateBody'
       responses:
         "200":
           description: OK
@@ -273,17 +282,17 @@ paths:
       - langs
     patch:
       parameters:
+      - description: Update body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/lang.UpdateBody'
       - description: Lang ISO Code
         in: path
         name: isoCode
         required: true
         type: string
-      - description: new image url
-        in: body
-        name: imageURL
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: OK
@@ -335,7 +344,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/CreateBody'
+          $ref: '#/definitions/source.CreateBody'
       responses:
         "200":
           description: OK
@@ -349,40 +358,10 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
-      security:
-      - ApiKeyAuth: []
       summary: Add a new source
       tags:
       - sources
   /sources/{sourceID}:
-    patch:
-      parameters:
-      - description: Update body
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/UpdateBody'
-      - description: ID of the source
-        in: path
-        name: sourceID
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/Source'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/JSONError'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a source
-      tags:
-      - sources
-  /sources/{sourcesID}:
     delete:
       parameters:
       - description: ID of the source
@@ -403,9 +382,32 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
-      security:
-      - ApiKeyAuth: []
       summary: Delete a source
+      tags:
+      - sources
+    patch:
+      parameters:
+      - description: Update body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/source.UpdateBody'
+      - description: ID of the source
+        in: path
+        name: sourceID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Source'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Update a source
       tags:
       - sources
   /sources/order:
@@ -416,7 +418,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/UpdateBody'
+          $ref: '#/definitions/source.UpdateBody'
       responses:
         "200":
           description: OK
@@ -434,8 +436,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
-      security:
-      - ApiKeyAuth: []
       summary: Update orders of the sources
       tags:
       - sources
@@ -454,8 +454,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
-      security:
-      - ApiKeyAuth: []
       summary: Query sources used in feedly and add missing ones in Scribe
       tags:
       - sources

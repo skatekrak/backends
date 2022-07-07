@@ -17,16 +17,14 @@ import (
 	"github.com/skatekrak/scribe/refresh"
 )
 
-// @title          Scribe API
-// @version        1.0
-// @description    Document for the Scribe API
-// @contact.name   Maxime Cattet
-// @contact.email  m[at]skatekrak.com
-// @license.name   AGPLv3
-// @host           localhost:8080
-// @BasePath       /
-// @Accept         json
-// @Produce        json
+// @title         Scribe API
+// @version       1.0
+// @description   Document for the Scribe API
+// @license.name  AGPLv3
+// @host          localhost:8080
+// @BasePath      /
+// @Accept        json
+// @Produce       json
 func main() {
 	err := godotenv.Load()
 	if err != nil {

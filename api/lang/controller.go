@@ -27,11 +27,10 @@ func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 
 // Create a lang
 // @Tags     langs
-// @Success  200       {object}  model.Lang
-// @Failure  409       {object}  api.JSONError
-// @Failure  500       {object}  api.JSONError
-// @Param    isoCode   body      string  true  "language iso code"
-// @Param    imageURL  body      string  true  "language icon url"
+// @Success  200   {object}  model.Lang
+// @Failure  409   {object}  api.JSONError
+// @Failure  500   {object}  api.JSONError
+// @Param    body  body      lang.CreateBody  true  "Create body"
 // @Router   /langs [post]
 func (c *Controller) Create(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(CreateBody)
@@ -56,11 +55,11 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 
 // Update a lang
 // @Tags     langs
-// @Success  200       {object}  model.Lang
-// @Failure  404       {object}  api.JSONError
-// @Failure  500       {object}  api.JSONError
-// @Param    isoCode   path      string  true  "Lang ISO Code"
-// @Param    imageURL  body      string  true  "new image url"
+// @Success  200      {object}  model.Lang
+// @Failure  404      {object}  api.JSONError
+// @Failure  500      {object}  api.JSONError
+// @Param    body     body      lang.UpdateBody  true  "Update body"
+// @Param    isoCode  path      string           true  "Lang ISO Code"
 // @Router   /langs/{isoCode} [patch]
 func (c *Controller) Update(ctx *fiber.Ctx) error {
 	lang := middlewares.GetLang(ctx)

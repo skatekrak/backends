@@ -16,10 +16,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "name": "Maxime Cattet",
-            "email": "m[at]skatekrak.com"
-        },
+        "contact": {},
         "license": {
             "name": "AGPLv3"
         },
@@ -128,21 +125,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "language iso code",
-                        "name": "isoCode",
+                        "description": "Create body",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "language icon url",
-                        "name": "imageURL",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/lang.CreateBody"
                         }
                     }
                 ],
@@ -209,20 +197,20 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
+                        "description": "Update body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lang.UpdateBody"
+                        }
+                    },
+                    {
                         "type": "string",
                         "description": "Lang ISO Code",
                         "name": "isoCode",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "new image url",
-                        "name": "imageURL",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 ],
                 "responses": {
@@ -291,11 +279,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "tags": [
                     "sources"
                 ],
@@ -307,7 +290,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/CreateBody"
+                            "$ref": "#/definitions/source.CreateBody"
                         }
                     }
                 ],
@@ -335,11 +318,6 @@ const docTemplate = `{
         },
         "/sources/order": {
             "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "tags": [
                     "sources"
                 ],
@@ -351,7 +329,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/UpdateBody"
+                            "$ref": "#/definitions/source.UpdateBody"
                         }
                     }
                 ],
@@ -385,11 +363,6 @@ const docTemplate = `{
         },
         "/sources/sync-feedly": {
             "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "tags": [
                     "sources"
                 ],
@@ -417,57 +390,7 @@ const docTemplate = `{
             }
         },
         "/sources/{sourceID}": {
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "sources"
-                ],
-                "summary": "Update a source",
-                "parameters": [
-                    {
-                        "description": "Update body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/UpdateBody"
-                        }
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the source",
-                        "name": "sourceID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Source"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/JSONError"
-                        }
-                    }
-                }
-            }
-        },
-        "/sources/{sourcesID}": {
             "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "tags": [
                     "sources"
                 ],
@@ -492,6 +415,44 @@ const docTemplate = `{
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/JSONError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "sources"
+                ],
+                "summary": "Update a source",
+                "parameters": [
+                    {
+                        "description": "Update body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/source.UpdateBody"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID of the source",
+                        "name": "sourceID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Source"
                         }
                     },
                     "500": {
@@ -554,31 +515,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "CreateBody": {
-            "type": "object",
-            "required": [
-                "lang",
-                "type"
-            ],
-            "properties": {
-                "isSkateSource": {
-                    "type": "boolean"
-                },
-                "lang": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "vimeo",
-                        "youtube"
-                    ]
-                },
-                "url": {
                     "type": "string"
                 }
             }
@@ -697,7 +633,58 @@ const docTemplate = `{
                 }
             }
         },
-        "UpdateBody": {
+        "lang.CreateBody": {
+            "type": "object",
+            "required": [
+                "imageURL",
+                "isoCode"
+            ],
+            "properties": {
+                "imageURL": {
+                    "type": "string"
+                },
+                "isoCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "lang.UpdateBody": {
+            "type": "object",
+            "required": [
+                "imageURL"
+            ],
+            "properties": {
+                "imageURL": {
+                    "type": "string"
+                }
+            }
+        },
+        "source.CreateBody": {
+            "type": "object",
+            "required": [
+                "lang",
+                "type"
+            ],
+            "properties": {
+                "isSkateSource": {
+                    "type": "boolean"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "vimeo",
+                        "youtube"
+                    ]
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "source.UpdateBody": {
             "type": "object",
             "properties": {
                 "coverURL": {

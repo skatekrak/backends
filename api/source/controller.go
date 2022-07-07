@@ -47,11 +47,11 @@ func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 // Add a new source
 // @Summary   Add a new source
 // @Tags      sources
-// @Security  ApiKeyAuth
+// @securityDefinitions.apikey in Authorization "API Key"
 // @Success   200   {object}  model.Source
 // @Failure   404   {object}  api.JSONError
 // @Failure   500   {object}  api.JSONError
-// @Param     body  body      CreateBody  true  "body"
+// @Param     body  body      source.CreateBody  true  "body"
 // @Router    /sources [post]
 func (c *Controller) Create(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(CreateBody)
@@ -124,11 +124,11 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 
 // Update a source
 // @Summary   Update a source
-// @Security  ApiKeyAuth
+// @securityDefinitions.apikey in Authorization "API Key"
 // @Tags     sources
 // @Success   200       {object}  model.Source
 // @Failure   500       {object}  api.JSONError
-// @Param     body      body      UpdateBody  true  "Update body"
+// @Param     body      body      source.UpdateBody  true  "Update body"
 // @Param     sourceID  path      integer     true  "ID of the source"
 // @Router    /sources/{sourceID} [patch]
 func (c *Controller) Update(ctx *fiber.Ctx) error {
@@ -155,13 +155,13 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 
 // Delete a source
 // @Summary   Delete a source
-// @Security  ApiKeyAuth
+// @securityDefinitions.apikey in Authorization "API Key"
 // @Tags      sources
 // @Success   200       {object}  api.JSONMessage
 // @Failure   404       {object}  api.JSONError
 // @Failure   500       {object}  api.JSONError
 // @Param     sourceID  path      integer  true  "ID of the source"
-// @Router    /sources/{sourcesID} [delete]
+// @Router    /sources/{sourceID} [delete]
 func (c *Controller) Delete(ctx *fiber.Ctx) error {
 	source := middlewares.GetSource(ctx)
 
@@ -179,7 +179,7 @@ func (c *Controller) Delete(ctx *fiber.Ctx) error {
 
 // Refresh feedly sources
 // @Summary   Query sources used in feedly and add missing ones in Scribe
-// @Security  ApiKeyAuth
+// @securityDefinitions.apikey in Authorization "API Key"
 // @Tags      sources
 // @Success   200  {array}   []model.Source
 // @Failure   500  {object}  api.JSONError
@@ -239,7 +239,7 @@ func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 
 // Update orders of the sources
 // @Summary   Update orders of the sources
-// @Security  ApiKeyAuth
+// @securityDefinitions.apikey in Authorization "API Key"
 // @Tags      sources
 // @Success   200   {array}   []model.Source
 // @Failure   400   {object}  api.JSONError
