@@ -54,7 +54,7 @@ func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*d
 	return pagination, nil
 }
 
-func (s *ContentService) FindFromSource(sourceID string, page int) (database.Pagination, error) {
+func (s *ContentService) FindFromSource(sourceID string, page int) (*database.Pagination, error) {
 	var contents []model.Content
 
 	pagination := &database.Pagination{
@@ -70,11 +70,7 @@ func (s *ContentService) FindFromSource(sourceID string, page int) (database.Pag
 
 	pagination.Items = contents
 
-	if err != nil {
-		return *pagination, err
-	}
-
-	return *pagination, err
+	return pagination, err
 }
 
 func (s *ContentService) AddMany(contents []*model.Content, sources []*model.Source) error {
@@ -91,8 +87,6 @@ func (s *ContentService) AddMany(contents []*model.Content, sources []*model.Sou
 
 		return nil
 	})
-
-	// return s.db.CreateInBatches(contents, len(contents)).Error
 }
 
 func (s *ContentService) FindOneByContentID(contentID string) (model.Content, error) {
