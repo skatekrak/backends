@@ -18,3 +18,6 @@ format:
 
 style:
 	go vet
+
+build:
+	go build
