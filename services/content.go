@@ -67,8 +67,8 @@ func (s *ContentService) AddMany(contents []*model.Content, sources []*model.Sou
 			return err
 		}
 
-		for _, s := range sources {
-			if err := tx.Save(&s).Error; err != nil {
+		for i := range sources {
+			if err := tx.Save(&sources[i]).Error; err != nil {
 				return err
 			}
 		}

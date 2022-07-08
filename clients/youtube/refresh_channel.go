@@ -33,7 +33,7 @@ type VideoItem struct {
 func (y *YoutubeClient) FetchVideos(channelID string) (FetchResponse[VideoItem], error) {
 	url := fmt.Sprintf("https://www.googleapis.com/youtube/v3/search?channelId=%s&part=snippet&key=%s&maxResults=50&order=date", channelID, y.apiKey)
 
-	response, err := http.Get(url)
+	response, err := http.Get(url) //#nosec G107 -- False positive
 	if err != nil {
 		return FetchResponse[VideoItem]{}, err
 	}

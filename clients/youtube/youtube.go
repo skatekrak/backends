@@ -28,7 +28,7 @@ func GetChannelID(url string) (string, error) {
 		return "", errors.New("URL is not a youtube channel")
 	}
 
-	res, err := http.Get(url)
+	res, err := http.Get(url) //#nosec G107 -- Ok because it's only admin and urls are check for domain before
 	if err != nil {
 		return "", err
 	}

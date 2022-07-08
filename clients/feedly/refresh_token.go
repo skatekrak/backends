@@ -21,8 +21,8 @@ type FeedlyRefreshTokenResopnse struct {
 }
 
 func (f *FeedlyClient) RefreshToken() (string, error) {
-	url := fmt.Sprintf("https://cloud.feedly.com/v3/auth/token?refresh_token=%s&client_id=%s&client_secret=%s&grant_type=%s", f.refreshToken, "feedlydev", "feedlydev", "refresh_token")
-	req, err := http.Post(url, "application/json", nil)
+	url := fmt.Sprintf("https://cloud.feedly.com/v3/auth/token?refresh_token=%s&client_id=feedlydev&client_secret=feedlydev&grant_type=refresh_token", f.refreshToken)
+	req, err := http.Post(url, "application/json", nil) //#nosec G107 -- False positive
 	if err != nil {
 		return "", err
 	}
