@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -54,5 +56,9 @@ func main() {
 
 	app.Get("/docs/*", swagger.HandlerDefault)
 
-	app.Listen(":8080")
+	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
+		log.Fatalln("Error listening")
+		log.Fatalln(err)
+	}
+
 }
