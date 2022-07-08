@@ -10,10 +10,10 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
 	github.com/k3a/html2text v1.0.8
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/swag v1.8.3
-	gorm.io/driver/sqlite v1.3.4
-	gorm.io/gorm v1.23.6
+	gorm.io/driver/sqlite v1.3.6
+	gorm.io/gorm v1.23.8
 )
 
 require (
