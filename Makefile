@@ -15,3 +15,6 @@ doc:
 
 format:
 	go fmt && swag fmt --exclude="api/interfaces.go,model,database/pagination_scope.go"
+
+style:
+	go vet
