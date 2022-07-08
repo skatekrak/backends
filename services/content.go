@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/model"
 	"gorm.io/gorm"
@@ -55,20 +53,16 @@ func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*d
 }
 
 func (s *ContentService) FindFromSource(sourceID string, page int) (*database.Pagination, error) {
-	var contents []model.Content
-
 	pagination := &database.Pagination{
 		PerPage: 50,
 		Page:    page,
 	}
 
-	err := s.db.Find(&contents).
-		Order("\"published_at desc\"").
-		Joins(fmt.Sprintf("left join contents on sources.id = %s", sourceID)).
+	err := s.db.Find(&pagination.Items).
+		Order("contents.published_at desc").
+		Joins("left join contents on sources.id = ?", sourceID).
 		Scopes(pagination.Scope()).
 		Error
-
-	pagination.Items = contents
 
 	return pagination, err
 }
