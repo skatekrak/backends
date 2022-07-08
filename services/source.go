@@ -1,8 +1,10 @@
 package services
 
 import (
+	"errors"
 	"log"
 
+	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -85,4 +87,40 @@ func (s *SourceService) UpdateOrder(updates map[int]map[string]interface{}) ([]m
 	})
 
 	return sources, err
+}
+
+func (s *SourceService) AddManyIfNotExist(data []fetchers.ChannelFetchData, sourceType string, nextOrder int) ([]*model.Source, error) {
+	sources := []*model.Source{}
+	index := 0
+
+	for _, source := range data {
+		if _, err := s.GetBySourceID(source.SourceID); err != nil {
+			// Only attempt to create source that are not already here
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				sources = append(sources, &model.Source{
+					Order:       nextOrder + index,
+					SourceType:  sourceType,
+					SourceID:    source.SourceID,
+					Title:       source.Title,
+					Description: source.Description,
+					ShortTitle:  source.Title,
+					CoverURL:    source.CoverURL,
+					IconURL:     source.IconURL,
+					WebsiteURL:  source.WebsiteURL,
+					SkateSource: source.SkateSource,
+					PublishedAt: source.PublishedAt,
+					Lang: model.Lang{
+						IsoCode: source.Lang,
+					},
+				})
+				index++
+			}
+		}
+	}
+
+	if err := s.AddMany(sources); err != nil {
+		return sources, err
+	}
+
+	return sources, nil
 }

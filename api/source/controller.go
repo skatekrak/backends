@@ -1,7 +1,6 @@
 package source
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/skatekrak/scribe/middlewares"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
-	"gorm.io/gorm"
 )
 
 type Controller struct {
@@ -200,35 +198,8 @@ func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 		})
 	}
 
-	sources := []*model.Source{}
-	index := 0
-
-	for _, s := range data {
-		if _, err := c.s.GetBySourceID(s.SourceID); err != nil {
-			// Only attempt to create source that are not already here
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				sources = append(sources, &model.Source{
-					Order:       nextOrder + index,
-					SourceType:  "rss",
-					SourceID:    s.SourceID,
-					Title:       s.Title,
-					Description: s.Description,
-					ShortTitle:  s.Title,
-					CoverURL:    s.CoverURL,
-					IconURL:     s.IconURL,
-					WebsiteURL:  s.WebsiteURL,
-					SkateSource: s.SkateSource,
-					PublishedAt: s.PublishedAt,
-					Lang: model.Lang{
-						IsoCode: s.Lang,
-					},
-				})
-				index++
-			}
-		}
-	}
-
-	if err := c.s.AddMany(sources); err != nil {
+	sources, err := c.s.AddManyIfNotExist(data, "rss", nextOrder)
+	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
