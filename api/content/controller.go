@@ -11,7 +11,9 @@ type Controller struct {
 }
 
 // Find contents
+// @Summary Fetch contents
 // @Tags     contents
+// @Security ApiKeyAuth
 // @Param    sourceTypes  query     []string  false  "filter contents by source types"  Enums(rss,vimeo,youtube)
 // @Param    sources      query     []int     false  "filter contents by source id"
 // @Param    page         query     int       false  "Fetch page"  minimum(1)

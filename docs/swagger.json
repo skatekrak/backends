@@ -20,9 +20,15 @@
     "paths": {
         "/contents": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "contents"
                 ],
+                "summary": "Fetch contents",
                 "parameters": [
                     {
                         "type": "array",
@@ -113,6 +119,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "langs"
                 ],
@@ -151,6 +162,11 @@
         },
         "/langs/{isoCode}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "langs"
                 ],
@@ -185,6 +201,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "langs"
                 ],
@@ -272,6 +293,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -311,6 +337,11 @@
         },
         "/sources/order": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -356,6 +387,11 @@
         },
         "/sources/sync-feedly": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -384,6 +420,11 @@
         },
         "/sources/{sourceID}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -419,6 +460,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -705,6 +751,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

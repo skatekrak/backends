@@ -27,9 +27,15 @@ const docTemplate = `{
     "paths": {
         "/contents": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "contents"
                 ],
+                "summary": "Fetch contents",
                 "parameters": [
                     {
                         "type": "array",
@@ -120,6 +126,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "langs"
                 ],
@@ -158,6 +169,11 @@ const docTemplate = `{
         },
         "/langs/{isoCode}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "langs"
                 ],
@@ -192,6 +208,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "langs"
                 ],
@@ -279,6 +300,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -318,6 +344,11 @@ const docTemplate = `{
         },
         "/sources/order": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -363,6 +394,11 @@ const docTemplate = `{
         },
         "/sources/sync-feedly": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -391,6 +427,11 @@ const docTemplate = `{
         },
         "/sources/{sourceID}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -426,6 +467,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "tags": [
                     "sources"
                 ],
@@ -712,6 +758,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

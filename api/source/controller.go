@@ -47,7 +47,7 @@ func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 // Add a new source
 // @Summary   Add a new source
 // @Tags      sources
-// @securityDefinitions.apikey in Authorization "API Key"
+// @Security ApiKeyAuth
 // @Success   200   {object}  model.Source
 // @Failure   404   {object}  api.JSONError
 // @Failure   500   {object}  api.JSONError
@@ -124,7 +124,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 
 // Update a source
 // @Summary   Update a source
-// @securityDefinitions.apikey in Authorization "API Key"
+// @Security ApiKeyAuth
 // @Tags     sources
 // @Success   200       {object}  model.Source
 // @Failure   500       {object}  api.JSONError
@@ -155,7 +155,7 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 
 // Delete a source
 // @Summary   Delete a source
-// @securityDefinitions.apikey in Authorization "API Key"
+// @Security ApiKeyAuth
 // @Tags      sources
 // @Success   200       {object}  api.JSONMessage
 // @Failure   404       {object}  api.JSONError
@@ -179,7 +179,7 @@ func (c *Controller) Delete(ctx *fiber.Ctx) error {
 
 // Refresh feedly sources
 // @Summary   Query sources used in feedly and add missing ones in Scribe
-// @securityDefinitions.apikey in Authorization "API Key"
+// @Security ApiKeyAuth
 // @Tags      sources
 // @Success   200  {array}   []model.Source
 // @Failure   500  {object}  api.JSONError
@@ -239,7 +239,7 @@ func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 
 // Update orders of the sources
 // @Summary   Update orders of the sources
-// @securityDefinitions.apikey in Authorization "API Key"
+// @Security ApiKeyAuth
 // @Tags      sources
 // @Success   200   {array}   []model.Source
 // @Failure   400   {object}  api.JSONError

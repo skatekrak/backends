@@ -25,6 +25,9 @@ import (
 // @BasePath      /
 // @Accept        json
 // @Produce       json
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	err := godotenv.Load()
 	if err != nil {

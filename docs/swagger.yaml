@@ -215,6 +215,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Fetch contents
       tags:
       - contents
   /langs:
@@ -255,6 +258,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
       tags:
       - langs
   /langs/{isoCode}:
@@ -278,6 +283,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
       tags:
       - langs
     patch:
@@ -306,6 +313,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
       tags:
       - langs
   /sources:
@@ -358,6 +367,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
       summary: Add a new source
       tags:
       - sources
@@ -382,6 +393,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
       summary: Delete a source
       tags:
       - sources
@@ -407,6 +420,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
       summary: Update a source
       tags:
       - sources
@@ -436,6 +451,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
       summary: Update orders of the sources
       tags:
       - sources
@@ -454,9 +471,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
       summary: Query sources used in feedly and add missing ones in Scribe
       tags:
       - sources
 produces:
 - application/json
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
