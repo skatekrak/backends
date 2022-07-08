@@ -15,9 +15,13 @@ func NewContentService(db *gorm.DB) *ContentService {
 }
 
 func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*database.Pagination, error) {
-	var contents []model.Content
+	pagination := &database.Pagination{
+		PerPage: 50,
+		Page:    page,
+		Items:   []model.Content{},
+	}
 
-	tx := s.db.Model(contents).Order("contents.published_at desc").Session(&gorm.Session{})
+	tx := s.db.Model(pagination.Items).Order("contents.published_at desc").Session(&gorm.Session{})
 
 	if len(sourceTypes)+len(sources) > 0 {
 		tx = tx.
@@ -34,28 +38,18 @@ func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*d
 		tx = tx.Where("sources.id in ?", sources)
 	}
 
-	pagination := &database.Pagination{
-		PerPage: 50,
-		Page:    page,
-	}
-
 	tx = tx.
 		Scopes(pagination.Scope()).
-		Find(&contents)
+		Find(&pagination.Items)
 
-	if tx.Error != nil {
-		return pagination, tx.Error
-	}
-
-	pagination.Items = contents
-
-	return pagination, nil
+	return pagination, tx.Error
 }
 
 func (s *ContentService) FindFromSource(sourceID string, page int) (*database.Pagination, error) {
 	pagination := &database.Pagination{
 		PerPage: 50,
 		Page:    page,
+		Items:   []model.Content{},
 	}
 
 	err := s.db.Find(&pagination.Items).
