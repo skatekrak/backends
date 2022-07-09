@@ -21,17 +21,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// @title         Scribe API
-// @version       1.0
-// @description   Document for the Scribe API
-// @license.name  AGPLv3
-// @host          localhost:8080
-// @BasePath      /
-// @Accept        json
-// @Produce       json
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
+// @title                       Scribe API
+// @version                     1.0
+// @description                 Document for the Scribe API
+// @license.name                AGPLv3
+// @host                        localhost:8080
+// @BasePath                    /
+// @Accept                      json
+// @Produce                     json
+// @securityDefinitions.apikey  ApiKeyAuth
+// @in                          header
+// @name                        Authorization
 func main() {
 	err := godotenv.Load()
 	if err != nil {

@@ -15,7 +15,7 @@ import (
 
 type FindAllQuery struct {
 	Types []string `query:"types" validate:"dive,eq=vimeo|eq=youtube|eq=rss"`
-} // @Name FindAllQuery
+}
 
 type CreateBody struct {
 	URL           string `json:"url" validated:"required"`

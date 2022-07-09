@@ -74,7 +74,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/Pagination"
+                                    "$ref": "#/definitions/"
                                 },
                                 {
                                     "type": "object",
@@ -256,6 +256,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/refresh": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "refresh"
+                ],
+                "summary": "Refresh sources by there types",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "rss",
+                                "vimeo",
+                                "youtube"
+                            ],
+                            "type": "string"
+                        },
+                        "description": "Type of sources to refresh",
+                        "name": "types",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/Content"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
+        "/refresh/{sourceID}": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "refresh"
+                ],
+                "summary": "Refresh a given source",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Source ID",
+                        "name": "sourceID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/Source"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
         "/sources": {
             "get": {
                 "tags": [
@@ -400,7 +492,7 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "sources"
+                    "refresh"
                 ],
                 "summary": "Query sources used in feedly and add missing ones in Scribe",
                 "responses": {
@@ -512,6 +604,24 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "": {
+            "type": "object",
+            "properties": {
+                "items": {},
+                "page": {
+                    "type": "integer"
+                },
+                "perPage": {
+                    "type": "integer"
+                },
+                "totalPages": {
+                    "type": "integer"
+                },
+                "totalResults": {
+                    "type": "integer"
+                }
+            }
+        },
         "Content": {
             "type": "object",
             "properties": {
@@ -601,24 +711,6 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
-                }
-            }
-        },
-        "Pagination": {
-            "type": "object",
-            "properties": {
-                "items": {},
-                "page": {
-                    "type": "integer"
-                },
-                "perPage": {
-                    "type": "integer"
-                },
-                "totalPages": {
-                    "type": "integer"
-                },
-                "totalResults": {
-                    "type": "integer"
                 }
             }
         },

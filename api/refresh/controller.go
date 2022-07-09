@@ -15,6 +15,14 @@ type Controller struct {
 	feedlyCategoryID string
 }
 
+// Refresh sources by their types
+// @Summary   Refresh sources by there types
+// @Security  ApiKeyAuth
+// @Tags      refresh
+// @Success   200    {array}   []model.Content
+// @Failure   500    {object}  api.JSONError
+// @Param     types  query     []string  true  "Type of sources to refresh"  Enums(rss,vimeo,youtube)
+// @Router    /refresh [patch]
 func (c *Controller) RefreshByTypes(ctx *fiber.Ctx) error {
 	query := ctx.Locals(middlewares.QUERY).(RefreshQuery)
 
@@ -28,6 +36,14 @@ func (c *Controller) RefreshByTypes(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(contents)
 }
 
+// Refresh a given sources
+// @Summary   Refresh a given source
+// @Security  ApiKeyAuth
+// @Tags      refresh
+// @Success   200       {array}   []model.Source
+// @Failure   500       {object}  api.JSONError
+// @Param     sourceID  path      string  true  "Source ID"
+// @Router    /refresh/{sourceID} [patch]
 func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 	source := middlewares.GetSource(ctx)
 
@@ -41,11 +57,11 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 
 // Refresh feedly sources
 // @Summary   Query sources used in feedly and add missing ones in Scribe
-// @Security ApiKeyAuth
-// @Tags      sources
+// @Security  ApiKeyAuth
+// @Tags      refresh
 // @Success   200  {array}   []model.Source
 // @Failure   500  {object}  api.JSONError
-// @Router    /sources/sync-feedly [patch]
+// @Router    /refresh/sync-feedly [patch]
 func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
 	sources, err := c.rs.RefreshFeedlySource()
 	if err != nil {

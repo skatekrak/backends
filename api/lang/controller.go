@@ -12,7 +12,7 @@ type Controller struct {
 }
 
 // Fetch all langs
-// @Tags     langs
+// @Tags      langs
 // @Success  200  {array}   []model.Lang
 // @Failure  500  {object}  api.JSONError
 // @Router   /langs [get]
@@ -26,13 +26,13 @@ func (c *Controller) FindAll(ctx *fiber.Ctx) error {
 }
 
 // Create a lang
-// @Tags     langs
-// @Security ApiKeyAuth
-// @Success  200   {object}  model.Lang
-// @Failure  409   {object}  api.JSONError
-// @Failure  500   {object}  api.JSONError
-// @Param    body  body      lang.CreateBody  true  "Create body"
-// @Router   /langs [post]
+// @Tags      langs
+// @Security  ApiKeyAuth
+// @Success   200   {object}  model.Lang
+// @Failure   409   {object}  api.JSONError
+// @Failure   500   {object}  api.JSONError
+// @Param     body  body      lang.CreateBody  true  "Create body"
+// @Router    /langs [post]
 func (c *Controller) Create(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(CreateBody)
 
@@ -55,14 +55,14 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 }
 
 // Update a lang
-// @Tags     langs
-// @Security ApiKeyAuth
-// @Success  200      {object}  model.Lang
-// @Failure  404      {object}  api.JSONError
-// @Failure  500      {object}  api.JSONError
-// @Param    body     body      lang.UpdateBody  true  "Update body"
-// @Param    isoCode  path      string           true  "Lang ISO Code"
-// @Router   /langs/{isoCode} [patch]
+// @Tags      langs
+// @Security  ApiKeyAuth
+// @Success   200      {object}  model.Lang
+// @Failure   404      {object}  api.JSONError
+// @Failure   500      {object}  api.JSONError
+// @Param     body     body      lang.UpdateBody  true  "Update body"
+// @Param     isoCode  path      string           true  "Lang ISO Code"
+// @Router    /langs/{isoCode} [patch]
 func (c *Controller) Update(ctx *fiber.Ctx) error {
 	lang := middlewares.GetLang(ctx)
 	body := ctx.Locals(middlewares.BODY).(UpdateBody)
@@ -77,12 +77,12 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 
 // Delete a lang
 // @Tags     langs
-// @Security ApiKeyAuth
-// @Success  200      {object}  api.JSONMessage
-// @Failure  404      {object}  api.JSONError
-// @Failure  500      {object}  api.JSONError
-// @Param    isoCode  path      string  true  "Lang ISO Code"
-// @Router   /langs/{isoCode} [delete]
+// @Security  ApiKeyAuth
+// @Success   200      {object}  api.JSONMessage
+// @Failure   404      {object}  api.JSONError
+// @Failure   500      {object}  api.JSONError
+// @Param     isoCode  path      string  true  "Lang ISO Code"
+// @Router    /langs/{isoCode} [delete]
 func (c *Controller) Delete(ctx *fiber.Ctx) error {
 	lang := middlewares.GetLang(ctx)
 

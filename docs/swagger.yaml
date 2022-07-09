@@ -2,6 +2,18 @@ basePath: /
 consumes:
 - application/json
 definitions:
+  "":
+    properties:
+      items: {}
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalPages:
+        type: integer
+      totalResults:
+        type: integer
+    type: object
   Content:
     properties:
       author:
@@ -62,18 +74,6 @@ definitions:
         type: string
       updatedAt:
         type: string
-    type: object
-  Pagination:
-    properties:
-      items: {}
-      page:
-        type: integer
-      perPage:
-        type: integer
-      totalPages:
-        type: integer
-      totalResults:
-        type: integer
     type: object
   Source:
     properties:
@@ -204,7 +204,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/Pagination'
+            - $ref: '#/definitions/'
             - properties:
                 Items:
                   items:
@@ -317,6 +317,64 @@ paths:
       - ApiKeyAuth: []
       tags:
       - langs
+  /refresh:
+    patch:
+      parameters:
+      - description: Type of sources to refresh
+        in: query
+        items:
+          enum:
+          - rss
+          - vimeo
+          - youtube
+          type: string
+        name: types
+        required: true
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/Content'
+              type: array
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh sources by there types
+      tags:
+      - refresh
+  /refresh/{sourceID}:
+    patch:
+      parameters:
+      - description: Source ID
+        in: path
+        name: sourceID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/Source'
+              type: array
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh a given source
+      tags:
+      - refresh
   /sources:
     get:
       parameters:
@@ -475,7 +533,7 @@ paths:
       - ApiKeyAuth: []
       summary: Query sources used in feedly and add missing ones in Scribe
       tags:
-      - sources
+      - refresh
 produces:
 - application/json
 securityDefinitions:

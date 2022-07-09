@@ -14,7 +14,7 @@ doc:
 	swag init --parseDependency --parseInternal
 
 format:
-	go fmt && swag fmt --exclude="api/interfaces.go,model,database/pagination_scope.go"
+	go fmt && swag fmt --exclude="./api/interfaces.go,./model,./database/pagination_scope.go"
 
 style:
 	golangci-lint run
