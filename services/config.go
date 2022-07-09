@@ -10,6 +10,7 @@ import (
 
 type ConfigKey = string
 
+/* #nosec G101 -- Not hardcoded credentials, just managed keys */
 const (
 	FeedlyToken          ConfigKey = "feedly_token"
 	FeedlyTokenExpiresAt ConfigKey = "feedly_token_expires_at"
