@@ -1,10 +1,14 @@
 package feedly
 
 type FeedlyClient struct {
-	refreshToken string
-	accessToken  string
+	RefreshToken string
+	AccessToken  string
 }
 
 func New(refreshToken string) *FeedlyClient {
-	return &FeedlyClient{refreshToken: refreshToken, accessToken: ""}
+	return &FeedlyClient{RefreshToken: refreshToken}
+}
+
+func (f *FeedlyClient) HasAccessToken() bool {
+	return f.AccessToken != ""
 }

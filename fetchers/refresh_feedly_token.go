@@ -1,4 +1,4 @@
-package feedly
+package fetchers
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 type FeedlyRefreshTokenResopnse struct {
@@ -20,33 +21,31 @@ type FeedlyRefreshTokenResopnse struct {
 	ExpiresIn    int    `json:"expires_in"`
 }
 
-func (f *FeedlyClient) RefreshToken() (string, error) {
-	url := fmt.Sprintf("https://cloud.feedly.com/v3/auth/token?refresh_token=%s&client_id=feedlydev&client_secret=feedlydev&grant_type=refresh_token", f.refreshToken)
+func (fe *Fetcher) RefreshFeedlyToken() (string, time.Time, error) {
+	url := fmt.Sprintf("https://cloud.feedly.com/v3/auth/token?refresh_token=%s&client_id=feedlydev&client_secret=feedlydev&grant_type=refresh_token", fe.f.RefreshToken)
 	req, err := http.Post(url, "application/json", nil) //#nosec G107 -- False positive
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
 	responseData, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
 	var data FeedlyRefreshTokenResopnse
 	if err := json.Unmarshal(responseData, &data); err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
 	if data.AccessToken == "" {
-		return "", errors.New("empty access token")
+		return "", time.Time{}, errors.New("empty access token")
 	}
 
-	f.accessToken = data.AccessToken
-	log.Println("Feedly token refreshed")
+	expiresAt := time.Now()
+	expiresAt = expiresAt.Add(time.Second * time.Duration(data.ExpiresIn))
 
-	return data.AccessToken, nil
-}
+	log.Printf("Feedly token refreshed, expires at %s", expiresAt)
 
-func (f *FeedlyClient) HasRefreshToken() bool {
-	return f.accessToken != ""
+	return data.AccessToken, expiresAt, err
 }

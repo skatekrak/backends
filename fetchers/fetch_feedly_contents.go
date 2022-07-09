@@ -1,16 +1,15 @@
 package fetchers
 
 import (
+	"errors"
 	"time"
 
 	"github.com/k3a/html2text"
 )
 
 func (fe *Fetcher) FetchFeedlyContents(categoryID string) ([]ContentFetchData, error) {
-	if !fe.f.HasRefreshToken() {
-		if _, err := fe.f.RefreshToken(); err != nil {
-			return []ContentFetchData{}, err
-		}
+	if !fe.f.HasAccessToken() {
+		return []ContentFetchData{}, errors.New("missing access token")
 	}
 
 	data, err := fe.f.FetchContents(categoryID)

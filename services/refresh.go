@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	"github.com/skatekrak/scribe/fetchers"
@@ -21,6 +22,7 @@ type RefreshService struct {
 	feedlyCategoryID string
 	cs               *ContentService
 	ss               *SourceService
+	config           *ConfigService
 }
 
 func NewRefreshService(db *gorm.DB, fetcher *fetchers.Fetcher, feedlyCategoryID string) *RefreshService {
@@ -29,6 +31,7 @@ func NewRefreshService(db *gorm.DB, fetcher *fetchers.Fetcher, feedlyCategoryID 
 		feedlyCategoryID: feedlyCategoryID,
 		cs:               NewContentService(db),
 		ss:               NewSourceService(db),
+		config:           NewConfigService(db),
 	}
 }
 
@@ -69,6 +72,9 @@ func (rs *RefreshService) RefreshByTypes(types []string) ([]*model.Content, erro
 	}
 
 	if helpers.Has(types, "rss") {
+		if err := rs.refreshAndSaveFeedlyTokenIfNeeded(); err != nil {
+			return []*model.Content{}, err
+		}
 		contents, err := rs.fetcher.FetchFeedlyContents(rs.feedlyCategoryID)
 		if err != nil {
 			return []*model.Content{}, err
@@ -142,6 +148,83 @@ func (rs *RefreshService) RefreshBySource(source model.Source) ([]*model.Content
 	}
 
 	return formattedContents, nil
+}
+
+func (rs *RefreshService) RefreshFeedlySource() ([]*model.Source, error) {
+	if err := rs.refreshAndSaveFeedlyTokenIfNeeded(); err != nil {
+		return []*model.Source{}, err
+	}
+
+	data, err := rs.fetcher.FetchFeedlySources(rs.feedlyCategoryID)
+	if err != nil {
+		return []*model.Source{}, err
+	}
+
+	nextOrder, err := rs.ss.GetNextOrder()
+	if err != nil {
+		return []*model.Source{}, err
+	}
+
+	return rs.ss.AddManyIfNotExist(data, "rss", nextOrder)
+}
+
+func (rs *RefreshService) refreshAndSaveFeedlyTokenIfNeeded() error {
+	token, err := rs.config.Get(FeedlyToken)
+	if err != nil {
+		return err
+	}
+
+	// The token is null, we can refresh it
+	if !token.Valid {
+		log.Println("token is null")
+		_, err := rs.refreshAndSaveFeedlyToken()
+		return err
+	}
+
+	expiresAt, err := rs.config.Get(FeedlyTokenExpiresAt)
+	if err != nil {
+		return err
+	}
+
+	// There is no expire date, we can refresh it to be safe
+	if !expiresAt.Valid {
+		log.Println("expiresAt is null")
+		_, err := rs.refreshAndSaveFeedlyToken()
+		return err
+	}
+
+	// Refresh as well if the token has expired or there is a parsing error
+	now := time.Now()
+	e, err := time.Parse(time.RFC3339, expiresAt.String)
+	if err != nil || now.After(e) {
+		log.Println("token has expired")
+		_, err := rs.refreshAndSaveFeedlyToken()
+		return err
+	}
+
+	rs.fetcher.UpdateFeedlyAccessToken(token.String)
+
+	return nil
+}
+
+func (rs *RefreshService) refreshAndSaveFeedlyToken() (string, error) {
+	t, expiresAt, err := rs.fetcher.RefreshFeedlyToken()
+	if err != nil {
+		return "", err
+	}
+
+	if err := rs.config.Set(FeedlyToken, &t); err != nil {
+		return "", err
+	}
+
+	e := expiresAt.Format(time.RFC3339)
+	if err := rs.config.Set(FeedlyTokenExpiresAt, &e); err != nil {
+		return "", err
+	}
+
+	rs.fetcher.UpdateFeedlyAccessToken(t)
+
+	return t, nil
 }
 
 func formatContent(content fetchers.ContentFetchData, source *model.Source) *model.Content {

@@ -64,7 +64,7 @@ func (f *FeedlyClient) FetchContents(categoryID string) (FeedlyFetchContentsResp
 		return FeedlyFetchContentsResponse{}, err
 	}
 
-	req.Header.Set("Authorization", f.accessToken)
+	req.Header.Set("Authorization", f.AccessToken)
 	client := &http.Client{}
 
 	response, err := client.Do(req)

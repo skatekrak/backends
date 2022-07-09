@@ -11,10 +11,11 @@ import (
 type ConfigKey = string
 
 const (
-	FeedlyToken ConfigKey = "feedly_token"
+	FeedlyToken          ConfigKey = "feedly_token"
+	FeedlyTokenExpiresAt ConfigKey = "feedly_token_expires_at"
 )
 
-var keys = [...]ConfigKey{FeedlyToken}
+var keys = [...]ConfigKey{FeedlyToken, FeedlyTokenExpiresAt}
 
 type ConfigService struct {
 	db *gorm.DB
@@ -65,7 +66,7 @@ func (s *ConfigService) Set(key ConfigKey, value *string) error {
 		}
 	}
 
-	return s.db.Create(&model.Config{
+	return s.db.Save(&model.Config{
 		Key:   key,
 		Value: v,
 	}).Error

@@ -175,39 +175,6 @@ func (c *Controller) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
-// Refresh feedly sources
-// @Summary   Query sources used in feedly and add missing ones in Scribe
-// @Security ApiKeyAuth
-// @Tags      sources
-// @Success   200  {array}   []model.Source
-// @Failure   500  {object}  api.JSONError
-// @Router    /sources/sync-feedly [patch]
-func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
-	data, err := c.fetcher.FetchFeedlySources(c.feedlyCategoryID)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	nextOrder, err := c.s.GetNextOrder()
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Couldn't get the next order",
-			"error":   err.Error(),
-		})
-	}
-
-	sources, err := c.s.AddManyIfNotExist(data, "rss", nextOrder)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return ctx.Status(fiber.StatusOK).JSON(sources)
-}
-
 // Update orders of the sources
 // @Summary   Update orders of the sources
 // @Security ApiKeyAuth

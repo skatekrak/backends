@@ -38,3 +38,21 @@ func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusOK).JSON(contents)
 }
+
+// Refresh feedly sources
+// @Summary   Query sources used in feedly and add missing ones in Scribe
+// @Security ApiKeyAuth
+// @Tags      sources
+// @Success   200  {array}   []model.Source
+// @Failure   500  {object}  api.JSONError
+// @Router    /sources/sync-feedly [patch]
+func (c *Controller) RefreshFeedly(ctx *fiber.Ctx) error {
+	sources, err := c.rs.RefreshFeedlySource()
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(sources)
+}

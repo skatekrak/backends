@@ -67,7 +67,6 @@ func Route(app *fiber.App, db *gorm.DB) {
 
 	router.Get("", middlewares.QueryHandler[FindAllQuery](), controller.FindAll)
 	router.Post("", auth, middlewares.JSONHandler[CreateBody](), controller.Create)
-	router.Post("/sync-feedly", auth, controller.RefreshFeedly)
 	router.Patch("/order", auth, middlewares.JSONHandler[UpdateOrderBody](), controller.UpdateOrder)
 	router.Patch("/:sourceID", auth, sourceLoader, middlewares.JSONHandler[UpdateBody](), controller.Update)
 	router.Delete("/:sourceID", auth, sourceLoader, controller.Delete)

@@ -1,12 +1,14 @@
 package fetchers
 
-import "github.com/skatekrak/scribe/helpers"
+import (
+	"errors"
+
+	"github.com/skatekrak/scribe/helpers"
+)
 
 func (fe *Fetcher) FetchFeedlySources(categoryID string) ([]ChannelFetchData, error) {
-	if !fe.f.HasRefreshToken() {
-		if _, err := fe.f.RefreshToken(); err != nil {
-			return []ChannelFetchData{}, err
-		}
+	if !fe.f.HasAccessToken() {
+		return []ChannelFetchData{}, errors.New("missing access token")
 	}
 
 	data, err := fe.f.FetchSources(categoryID)

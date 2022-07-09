@@ -42,7 +42,7 @@ func (f *FeedlyClient) FetchSources(categoryID string) ([]FeedlyCollectionRespon
 		return []FeedlyCollectionResponse{}, err
 	}
 
-	req.Header.Set("Authorization", f.accessToken)
+	req.Header.Set("Authorization", f.AccessToken)
 	client := &http.Client{}
 	response, err := client.Do(req)
 

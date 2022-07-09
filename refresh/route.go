@@ -43,5 +43,6 @@ func Route(app *fiber.App, db *gorm.DB) {
 	router := app.Group("refresh")
 
 	router.Post("", auth, middlewares.QueryHandler[RefreshQuery](), controller.RefreshByTypes)
+	router.Post("/sync-feedly-sources", auth, controller.RefreshFeedly)
 	router.Post("/:sourceID", auth, sourceLoader, controller.RefreshSource)
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/refresh"
 	"github.com/skatekrak/scribe/services"
+	"gorm.io/gorm"
 )
 
 // @title         Scribe API
@@ -46,13 +47,26 @@ func main() {
 		log.Fatalf("unable to migrate database: %s", err)
 	}
 
+	setupConfig(db)
+
+	app := fiber.New()
+	setupRoutes(db, app)
+
+	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
+		log.Fatalln("Error listening")
+		log.Fatalln(err)
+	}
+}
+
+func setupConfig(db *gorm.DB) {
 	// Setup necessary config key
 	configService := services.NewConfigService(db)
 	if err := configService.InitSetup(); err != nil {
 		log.Fatalf("Unable to init config: %s", err)
 	}
+}
 
-	app := fiber.New()
+func setupRoutes(db *gorm.DB, app *fiber.App) {
 	app.Use(logger.New())
 	app.Use(recover.New())
 
@@ -62,10 +76,4 @@ func main() {
 	refresh.Route(app, db)
 
 	app.Get("/docs/*", swagger.HandlerDefault)
-
-	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
-		log.Fatalln("Error listening")
-		log.Fatalln(err)
-	}
-
 }

@@ -54,3 +54,7 @@ func (fe *Fetcher) SourceType(url string) string {
 	}
 	return "rss"
 }
+
+func (fe *Fetcher) UpdateFeedlyAccessToken(t string) {
+	fe.f.AccessToken = t
+}
