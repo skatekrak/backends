@@ -12,11 +12,11 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/skatekrak/scribe/api/content"
 	"github.com/skatekrak/scribe/api/lang"
+	"github.com/skatekrak/scribe/api/refresh"
 	"github.com/skatekrak/scribe/api/source"
 	"github.com/skatekrak/scribe/database"
 	_ "github.com/skatekrak/scribe/docs"
 	"github.com/skatekrak/scribe/model"
-	"github.com/skatekrak/scribe/refresh"
 	"github.com/skatekrak/scribe/services"
 	"gorm.io/gorm"
 )
