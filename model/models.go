@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -67,4 +68,10 @@ type Content struct {
 func (c *Content) BeforeCreate(tx *gorm.DB) (err error) {
 	c.ID = uuid.NewString()
 	return
+}
+
+type Config struct {
+	Key       string         `gorm:"primaryKey" json:"key"`
+	Value     sql.NullString `json:"value"`
+	UpdatedAt time.Time      `swaggertype:"string" json:"updatedAt"`
 }

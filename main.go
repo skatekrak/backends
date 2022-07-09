@@ -17,6 +17,7 @@ import (
 	_ "github.com/skatekrak/scribe/docs"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/refresh"
+	"github.com/skatekrak/scribe/services"
 )
 
 // @title         Scribe API
@@ -41,8 +42,14 @@ func main() {
 		log.Fatalf("unable to open database: %s", err)
 	}
 
-	if err = db.AutoMigrate(&model.Lang{}, &model.Source{}, &model.Content{}); err != nil {
+	if err = db.AutoMigrate(&model.Lang{}, &model.Source{}, &model.Content{}, &model.Config{}); err != nil {
 		log.Fatalf("unable to migrate database: %s", err)
+	}
+
+	// Setup necessary config key
+	configService := services.NewConfigService(db)
+	if err := configService.InitSetup(); err != nil {
+		log.Fatalf("Unable to init config: %s", err)
 	}
 
 	app := fiber.New()
