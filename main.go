@@ -16,6 +16,7 @@ import (
 	"github.com/skatekrak/scribe/api/source"
 	"github.com/skatekrak/scribe/database"
 	_ "github.com/skatekrak/scribe/docs"
+	"github.com/skatekrak/scribe/jobs"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
 	"gorm.io/gorm"
@@ -51,6 +52,8 @@ func main() {
 
 	app := fiber.New()
 	setupRoutes(db, app)
+
+	jobs.Setup(db)
 
 	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
 		log.Fatalln("Error listening")
