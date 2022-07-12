@@ -9,7 +9,7 @@ func Has[T comparable](slice []T, element T) bool {
 	return false
 }
 
-func Find[T any](m []*T, iterate func(*T) bool) (*T, bool) {
+func Find[T interface{}](m []*T, iterate func(*T) bool) (*T, bool) {
 	for _, item := range m {
 		result := iterate(item)
 		if result {

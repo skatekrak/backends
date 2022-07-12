@@ -16,7 +16,7 @@ const (
 	FeedlyTokenExpiresAt ConfigKey = "feedly_token_expires_at"
 )
 
-var keys = [...]ConfigKey{FeedlyToken, FeedlyTokenExpiresAt}
+var keys = []ConfigKey{FeedlyToken, FeedlyTokenExpiresAt}
 
 type ConfigService struct {
 	db *gorm.DB
