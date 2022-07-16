@@ -31,8 +31,8 @@ type Source struct {
 	RefreshedAt *time.Time `json:"refreshedAt"`
 	Order       int        `gorm:"index" json:"order"`
 	SourceType  string     `json:"sourceType"`
-	LangIsoCode string     `json:"lang"`
-	Lang        Lang       `json:"-"`
+	LangIsoCode string     `json:"-"`
+	Lang        Lang       `json:"lang"`
 	Title       string     `json:"title"`
 	ShortTitle  string     `json:"shortTitle"`
 	IconURL     string     `json:"iconUrl"`
