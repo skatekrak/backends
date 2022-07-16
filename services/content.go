@@ -24,6 +24,7 @@ func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*d
 	tx := s.db.Model(pagination.Items).
 		Order("contents.created_at desc").
 		Joins("Source").
+		Preload("Source.Lang").
 		Session(&gorm.Session{})
 
 	if len(sourceTypes)+len(sources) > 0 {
@@ -49,7 +50,7 @@ func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*d
 
 func (s *ContentService) Get(id string) (model.Content, error) {
 	var content model.Content
-	err := s.db.Where("contents.id = ?", id).Joins("Source").First(&content).Error
+	err := s.db.Where("contents.id = ?", id).Joins("Source").Preload("Source.Lang").First(&content).Error
 	return content, err
 }
 
