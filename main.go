@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
@@ -39,7 +40,7 @@ func main() {
 		log.Fatalln("Error loading .env file")
 	}
 
-	db, err := database.Open("./local.db")
+	db, err := database.Open(os.Getenv("POSTGRES_DSN"))
 	if err != nil {
 		log.Fatalf("unable to open database: %s", err)
 	}
@@ -51,6 +52,9 @@ func main() {
 	setupConfig(db)
 
 	app := fiber.New()
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: os.Getenv("CORS_ORIGINS"),
+	}))
 	setupRoutes(db, app)
 
 	jobs.Setup(db)
