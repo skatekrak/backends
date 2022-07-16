@@ -21,5 +21,8 @@ func Route(app *fiber.App, db *gorm.DB) {
 
 	router := app.Group("contents")
 
+	contentLoader := middlewares.ContentLoader(contentService)
+
 	router.Get("", middlewares.QueryHandler[FindQuery](), controller.Find)
+	router.Get("/:contentId", contentLoader, controller.Get)
 }

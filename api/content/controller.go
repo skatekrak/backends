@@ -3,6 +3,7 @@ package content
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
 )
 
@@ -13,7 +14,6 @@ type Controller struct {
 // Find contents
 // @Summary   Fetch contents
 // @Tags      contents
-// @Security  ApiKeyAuth
 // @Param     sourceTypes  query     []string  false  "filter contents by source types"  Enums(rss,vimeo,youtube)
 // @Param     sources      query     []int     false  "filter contents by source id"
 // @Param     page         query     int       false  "Fetch page"  minimum(1)
@@ -31,4 +31,17 @@ func (c *Controller) Find(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(pagination)
+}
+
+// Get one content by id
+// @Summary Get one content by id
+// @Tags contents
+// @Success 200 {object} model.Content
+// @Failure 404 {object} api.JSONError
+// @Failure 500 {object} api.JSONError
+// @Router /contents/{contentId} [get]
+func (c *Controller) Get(ctx *fiber.Ctx) error {
+	content := ctx.Locals(middlewares.CONTENT_LOADER_LOCAL).(model.Content)
+
+	return ctx.Status(fiber.StatusOK).JSON(content)
 }

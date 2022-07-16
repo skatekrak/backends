@@ -51,7 +51,9 @@ type Content struct {
 	CreatedAt time.Time      `json:"createdAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt" swaggertype:"string"`
 
-	SourceID     uint      `json:"sourceId"`
+	SourceID uint   `json:"-"`
+	Source   Source `json:"source"`
+
 	ContentID    string    `gorm:"uniqueIndex" json:"contentId"` // Youtube or Vimeo ID or Feedly ID
 	PublishedAt  time.Time `json:"publishedAt"`
 	Title        string    `json:"title"`

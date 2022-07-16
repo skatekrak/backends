@@ -48,3 +48,19 @@ func LangLoader(s *services.LangService) fiber.Handler {
 func GetLang(ctx *fiber.Ctx) model.Lang {
 	return ctx.Locals(LANG_LOADER_LOCAL).(model.Lang)
 }
+
+const CONTENT_LOADER_LOCAL = "contentId"
+
+func ContentLoader(s *services.ContentService) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		contentId := ctx.Params(CONTENT_LOADER_LOCAL)
+
+		content, err := s.Get(contentId)
+		if err != nil {
+			return fiber.NewError(fiber.StatusNotFound, "Content not found")
+		}
+
+		ctx.Locals(CONTENT_LOADER_LOCAL, content)
+		return ctx.Next()
+	}
+}
