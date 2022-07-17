@@ -64,7 +64,7 @@ func (s *SourceService) Update(source *model.Source) error {
 }
 
 func (s *SourceService) Delete(source *model.Source) error {
-	return s.db.Unscoped().Delete(&source).Error
+	return s.db.Unscoped().Select("Contents").Delete(&source).Error
 }
 
 func (s *SourceService) AddMany(sources []*model.Source) error {
