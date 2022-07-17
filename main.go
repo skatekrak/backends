@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -51,6 +53,10 @@ func main() {
 		AllowOrigins: os.Getenv("CORS_ORIGINS"),
 	}))
 	app.Use(compress.New())
+	app.Use(cache.New(cache.Config{
+		Expiration:   30 * time.Minute,
+		CacheControl: true,
+	}))
 	setupRoutes(db, app)
 
 	jobs.Setup(db)
