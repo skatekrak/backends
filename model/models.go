@@ -43,7 +43,7 @@ type Source struct {
 	PublishedAt *time.Time `json:"publishedAt"`
 	SourceID    string     `gorm:"unique,index" json:"sourceId"` // Vimeo, Youtube or Feedly ID, depending on the type
 
-	Contents []Content `json:"-"`
+	Contents []Content `json:"-" gorm:"constraint:OnDelete:CASCADE;"`
 } // @name Source
 
 type Content struct {
