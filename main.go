@@ -10,7 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
-	"github.com/joho/godotenv"
 	"github.com/skatekrak/scribe/api/content"
 	"github.com/skatekrak/scribe/api/lang"
 	"github.com/skatekrak/scribe/api/refresh"
@@ -35,11 +34,6 @@ import (
 // @in                          header
 // @name                        Authorization
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalln("Error loading .env file")
-	}
-
 	db, err := database.Open(os.Getenv("POSTGRESQL_ADDON_URI"))
 	if err != nil {
 		log.Fatalf("unable to open database: %s", err)
