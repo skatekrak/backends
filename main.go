@@ -40,7 +40,7 @@ func main() {
 		log.Fatalln("Error loading .env file")
 	}
 
-	db, err := database.Open(os.Getenv("POSTGRES_DSN"))
+	db, err := database.Open(os.Getenv("POSTGRESQL_ADDON_URI"))
 	if err != nil {
 		log.Fatalf("unable to open database: %s", err)
 	}
