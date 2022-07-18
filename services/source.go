@@ -20,7 +20,7 @@ func NewSourceService(db *gorm.DB) *SourceService {
 
 func (s *SourceService) FindAll(types []string) ([]*model.Source, error) {
 	var sources []*model.Source
-	query := s.db.Joins("Lang").Session(&gorm.Session{})
+	query := s.db.Joins("Lang").Order("\"order\" asc").Session(&gorm.Session{})
 
 	if len(types) > 0 {
 		query = query.Where("sources.source_type IN ?", types)
