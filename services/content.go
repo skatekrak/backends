@@ -22,7 +22,8 @@ func (s *ContentService) Find(sourceTypes []string, sources []int, page int) (*d
 	}
 
 	tx := s.db.Model(pagination.Items).
-		Order("contents.created_at desc").
+		Where("contents.published_at IS NOT NULL").
+		Order("contents.published_at desc").
 		Joins("Source").
 		Session(&gorm.Session{})
 
