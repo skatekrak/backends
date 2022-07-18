@@ -54,6 +54,10 @@ func main() {
 	}))
 	app.Use(compress.New())
 	app.Use(cache.New(cache.Config{
+		Next: func(ctx *fiber.Ctx) bool {
+			// Only cache the GET requests
+			return ctx.Method() != "GET"
+		},
 		Expiration:   30 * time.Minute,
 		CacheControl: true,
 	}))
