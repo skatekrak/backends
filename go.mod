@@ -68,3 +68,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/ansrivas/fiberprometheus/v2 => github.com/skatekrak/fiberprometheus/v2 v2.2.1-0.20220719154132-d6554dfeac46
