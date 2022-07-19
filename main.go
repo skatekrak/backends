@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/utils"
 	"github.com/gofiber/swagger"
 	"github.com/skatekrak/scribe/api/content"
 	"github.com/skatekrak/scribe/api/lang"
@@ -57,6 +58,9 @@ func main() {
 		Next: func(ctx *fiber.Ctx) bool {
 			// Only cache the GET requests
 			return ctx.Method() != "GET"
+		},
+		KeyGenerator: func(ctx *fiber.Ctx) string {
+			return utils.CopyString(ctx.OriginalURL())
 		},
 		Expiration:   30 * time.Minute,
 		CacheControl: true,
