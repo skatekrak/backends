@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -50,6 +51,10 @@ func main() {
 	setupConfig(db)
 
 	app := fiber.New()
+
+	prometheus := fiberprometheus.New("scribe")
+	prometheus.RegisterAt(app, "/metrics")
+	app.Use(prometheus.Middleware)
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: os.Getenv("CORS_ORIGINS"),
 	}))
