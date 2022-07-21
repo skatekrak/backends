@@ -2,9 +2,10 @@ package content
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/loaders"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
+	"github.com/skatekrak/utils/middlewares"
 )
 
 type Controller struct {
@@ -41,7 +42,7 @@ func (c *Controller) Find(ctx *fiber.Ctx) error {
 // @Failure 500 {object} api.JSONError
 // @Router /contents/{contentId} [get]
 func (c *Controller) Get(ctx *fiber.Ctx) error {
-	content := ctx.Locals(middlewares.CONTENT_LOADER_LOCAL).(model.Content)
+	content := ctx.Locals(loaders.CONTENT_LOADER_LOCAL).(model.Content)
 
 	return ctx.Status(fiber.StatusOK).JSON(content)
 }

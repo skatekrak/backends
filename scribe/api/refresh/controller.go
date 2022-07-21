@@ -3,8 +3,9 @@ package refresh
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/scribe/fetchers"
-	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/loaders"
 	"github.com/skatekrak/scribe/services"
+	"github.com/skatekrak/utils/middlewares"
 )
 
 type Controller struct {
@@ -45,7 +46,7 @@ func (c *Controller) RefreshByTypes(ctx *fiber.Ctx) error {
 // @Param     sourceID  path      string  true  "Source ID"
 // @Router    /refresh/{sourceID} [patch]
 func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
-	source := middlewares.GetSource(ctx)
+	source := loaders.GetSource(ctx)
 
 	contents, errs := c.rs.RefreshBySource(source)
 	if errs != nil {

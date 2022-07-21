@@ -6,7 +6,6 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/ansrivas/fiberprometheus/v2 v2.2.0
 	github.com/go-co-op/gocron v1.15.0
-	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gofiber/fiber/v2 v2.35.0
 	github.com/gofiber/swagger v0.0.1
 	github.com/google/uuid v1.3.0
@@ -16,6 +15,8 @@ require (
 	gorm.io/driver/postgres v1.3.8
 	gorm.io/gorm v1.23.8
 )
+
+require github.com/go-playground/validator/v10 v10.11.0 // indirect
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -54,6 +55,7 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/skatekrak/utils v0.0.0
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.38.0 // indirect
@@ -70,3 +72,5 @@ require (
 )
 
 replace github.com/ansrivas/fiberprometheus/v2 => github.com/skatekrak/fiberprometheus/v2 v2.2.1-0.20220719154132-d6554dfeac46
+
+replace github.com/skatekrak/utils v0.0.0 => ../utils

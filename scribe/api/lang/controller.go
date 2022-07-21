@@ -2,9 +2,10 @@ package lang
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/loaders"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
+	"github.com/skatekrak/utils/middlewares"
 )
 
 type Controller struct {
@@ -64,7 +65,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 // @Param     isoCode  path      string           true  "Lang ISO Code"
 // @Router    /langs/{isoCode} [patch]
 func (c *Controller) Update(ctx *fiber.Ctx) error {
-	lang := middlewares.GetLang(ctx)
+	lang := loaders.GetLang(ctx)
 	body := ctx.Locals(middlewares.BODY).(UpdateBody)
 
 	lang.ImageURL = body.ImageURL
@@ -84,7 +85,7 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 // @Param     isoCode  path      string  true  "Lang ISO Code"
 // @Router    /langs/{isoCode} [delete]
 func (c *Controller) Delete(ctx *fiber.Ctx) error {
-	lang := middlewares.GetLang(ctx)
+	lang := loaders.GetLang(ctx)
 
 	if err := c.s.Delete(&lang); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

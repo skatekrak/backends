@@ -13,11 +13,10 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-/.env
-/*.db
+.env
+*.db
 /.vscode
 .DS_Store
-/gowatch.yml
-/bin
-/scribe
-/docker-compose.yml
+gowatch.yml
+bin
+docker-compose.yml

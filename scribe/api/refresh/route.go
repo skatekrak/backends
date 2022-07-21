@@ -8,8 +8,9 @@ import (
 	"github.com/skatekrak/scribe/clients/vimeo"
 	"github.com/skatekrak/scribe/clients/youtube"
 	"github.com/skatekrak/scribe/fetchers"
-	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/loaders"
 	"github.com/skatekrak/scribe/services"
+	"github.com/skatekrak/utils/middlewares"
 	"gorm.io/gorm"
 )
 
@@ -38,7 +39,7 @@ func Route(app *fiber.App, db *gorm.DB) {
 		feedlyCategoryID: feedlyCategoryID,
 	}
 	auth := middlewares.Authorization(apiKey)
-	sourceLoader := middlewares.SourceLoader(sourceService)
+	sourceLoader := loaders.SourceLoader(sourceService)
 
 	router := app.Group("refresh")
 

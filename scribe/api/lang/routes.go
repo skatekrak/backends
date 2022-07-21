@@ -4,8 +4,9 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/loaders"
 	"github.com/skatekrak/scribe/services"
+	"github.com/skatekrak/utils/middlewares"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +32,7 @@ func Route(app *fiber.App, db *gorm.DB) {
 	}
 
 	auth := middlewares.Authorization(apiKey)
-	langLoader := middlewares.LangLoader(langService)
+	langLoader := loaders.LangLoader(langService)
 
 	router := app.Group("/langs")
 	router.Get("", controller.FindAll)

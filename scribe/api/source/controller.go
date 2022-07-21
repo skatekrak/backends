@@ -9,9 +9,10 @@ import (
 	"github.com/skatekrak/scribe/clients/youtube"
 	"github.com/skatekrak/scribe/fetchers"
 	"github.com/skatekrak/scribe/helpers"
-	"github.com/skatekrak/scribe/middlewares"
+	"github.com/skatekrak/scribe/loaders"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
+	"github.com/skatekrak/utils/middlewares"
 )
 
 type Controller struct {
@@ -131,7 +132,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 // @Router    /sources/{sourceID} [patch]
 func (c *Controller) Update(ctx *fiber.Ctx) error {
 	body := ctx.Locals(middlewares.BODY).(UpdateBody)
-	source := middlewares.GetSource(ctx)
+	source := loaders.GetSource(ctx)
 
 	source.LangIsoCode = helpers.SetIfNotNil(body.LangIsoCode, source.LangIsoCode)
 	source.SkateSource = helpers.SetIfNotNil(body.IsSkateSource, source.SkateSource)
@@ -161,7 +162,7 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 // @Param     sourceID  path      integer  true  "ID of the source"
 // @Router    /sources/{sourceID} [delete]
 func (c *Controller) Delete(ctx *fiber.Ctx) error {
-	source := middlewares.GetSource(ctx)
+	source := loaders.GetSource(ctx)
 
 	if err := c.s.Delete(&source); err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
