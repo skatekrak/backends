@@ -17,7 +17,7 @@ jobs:
       - name: Deploy to Clever Cloud
         uses: 47ng/actions-clever-cloud@v1.2.0
         with:
-          appID: ${{ secrets.APP_ID }}
+          appID: ${{ secrets.SCRIBE_APP_ID }}
         env:
           CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
           CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
