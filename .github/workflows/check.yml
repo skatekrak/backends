@@ -1,6 +1,16 @@
 on: [push, pull_request]
-name: Security
+name: Checkup 
 jobs:
+  Golint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v2
+      - name: Run Golint
+        uses: reviewdog/action-golangci-lint@v1
+        with:
+          golangci_lint_flags: "--tests=false"
+
   Gosec:
     runs-on: ubuntu-latest
     strategy:
