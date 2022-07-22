@@ -3,7 +3,7 @@ package fetchers
 import (
 	"errors"
 
-	"github.com/skatekrak/scribe/helpers"
+	"github.com/skatekrak/utils/helpers"
 )
 
 func (fe *Fetcher) FetchFeedlySources(categoryID string) ([]ChannelFetchData, error) {

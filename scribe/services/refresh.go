@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/skatekrak/scribe/fetchers"
-	"github.com/skatekrak/scribe/helpers"
 	"github.com/skatekrak/scribe/model"
+	"github.com/skatekrak/utils/helpers"
 	"gorm.io/gorm"
 )
 

@@ -8,10 +8,10 @@ import (
 	"github.com/skatekrak/scribe/clients/vimeo"
 	"github.com/skatekrak/scribe/clients/youtube"
 	"github.com/skatekrak/scribe/fetchers"
-	"github.com/skatekrak/scribe/helpers"
 	"github.com/skatekrak/scribe/loaders"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
+	"github.com/skatekrak/utils/helpers"
 	"github.com/skatekrak/utils/middlewares"
 )
 
