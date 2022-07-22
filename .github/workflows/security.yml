@@ -3,10 +3,13 @@ name: Security
 jobs:
   Gosec:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        Project: ['scribe','utils']
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v2
       - name: Run Gosec
         uses: securego/gosec@master
         with:
-          args: ./...
+          args: ./${{matrix.Project}}/...
