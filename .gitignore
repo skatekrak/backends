@@ -20,3 +20,5 @@
 gowatch.yml
 bin
 docker-compose.yml
+/carrelage/pg-Dockerfile
+/carrelage/load-pg-extensions.sh
