@@ -13,7 +13,7 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v3
       - name: Deploy to Clever Cloud
-        uses: 47ng/actions-clever-cloud@v1.2
+        uses: 47ng/actions-clever-cloud@v1.2.0
         with:
           appID: ${{ secrets.APP_ID }}
         env:
