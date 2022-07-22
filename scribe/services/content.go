@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/skatekrak/scribe/database"
 	"github.com/skatekrak/scribe/model"
+	"github.com/skatekrak/utils/database"
 	"gorm.io/gorm"
 )
 
