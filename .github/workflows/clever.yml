@@ -2,12 +2,13 @@ on:
   workflow_run:
     workflows: [Checkup]
     types: [completed]
+    branches: [main]
 
 name: Deploy
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'ref/heads/main' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v3
