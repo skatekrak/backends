@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v3
+        with:
+          fetch-deps: 0
       - name: Deploy to Clever Cloud
         uses: 47ng/actions-clever-cloud@v1.2.0
         with:
