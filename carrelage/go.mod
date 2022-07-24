@@ -7,7 +7,7 @@ replace github.com/skatekrak/utils v0.0.0 => ../utils
 require (
 	github.com/gofiber/adaptor/v2 v2.1.24
 	github.com/gofiber/fiber/v2 v2.35.0
-	github.com/google/uuid v1.3.0
+	github.com/lib/pq v1.10.2
 	github.com/skatekrak/utils v0.0.0
 	github.com/supertokens/supertokens-golang v0.8.2
 	github.com/valyala/fasthttp v1.38.0

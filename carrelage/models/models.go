@@ -3,12 +3,11 @@ package models
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Model struct {
-	ID        uuid.UUID      `gorm:"primaryKey;type:uuid;default:uuid_generate_v4()" json:"id"`
+	ID        string         `gorm:"primaryKey;type:uuid;default:uuid_generate_v4()" json:"id"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt" swaggertype:"string"`
@@ -19,7 +18,7 @@ type User struct {
 
 	Role             string           `json:"role"`
 	UserSubscription UserSubscription `json:"subscription"`
-	Profile          Profile          `json:"profile"`
+	// Profile          Profile          `json:"profile"`
 }
 
 type UserSubscription struct {
@@ -35,6 +34,7 @@ type Profile struct {
 	Model
 
 	UserID            string `json:"user"`
+	User              User   `json:"-"`
 	Username          string `gorm:"uniqueIndex" json:"username"`
 	ProfilePictureURL string `json:"profilePictureUrl"`
 	Bio               string `json:"bio"`

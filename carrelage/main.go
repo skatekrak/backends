@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/skatekrak/carrelage/auth"
 	"github.com/skatekrak/carrelage/models"
+	"github.com/skatekrak/carrelage/services"
 	"github.com/skatekrak/utils/database"
 	"github.com/supertokens/supertokens-golang/supertokens"
 )
@@ -28,7 +29,8 @@ func main() {
 		log.Fatalf("unable to migrate database: %s", err)
 	}
 
-	auth.InitSuperTokens()
+	authService := services.NewAuthService(db)
+	auth.InitSuperTokens(authService)
 
 	app := fiber.New()
 
