@@ -1,8 +1,7 @@
 on:
-  workflow_run:
-    workflows: [Checkup]
-    types: [completed]
-    branches: [main]
+  push:
+    branches:
+      - "main"
 
 name: Deploy
 jobs:
