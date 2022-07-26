@@ -43,7 +43,8 @@ func (c *Controller) RefreshByTypes(ctx *fiber.Ctx) error {
 // @Tags      refresh
 // @Success   200       {array}   []model.Source
 // @Failure   500       {object}  api.JSONError
-// @Param     sourceID  path      string  true  "Source ID"
+// @Param     sourceID  path      string  true   "Source ID"
+// @Param     force     query     bool    false  "Will override content attributes"
 // @Router    /refresh/{sourceID} [patch]
 func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 	source := loaders.GetSource(ctx)
