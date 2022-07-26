@@ -35,7 +35,7 @@ type VimeoVideosResponse struct {
 }
 
 func (v *VimeoClient) FetchVideos(userID string) (VimeoVideosResponse, error) {
-	url := fmt.Sprintf("https://api.vimeo.com/users/%s/videos", userID)
+	url := fmt.Sprintf("https://api.vimeo.com/users/%s/videos?fields=uri,name,description,type,link,player_embed_url,release_time,pictures", userID)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 
 	if err != nil {
