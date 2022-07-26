@@ -27,11 +27,6 @@ const docTemplate = `{
     "paths": {
         "/contents": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "tags": [
                     "contents"
                 ],
@@ -74,7 +69,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/"
+                                    "$ref": "#/definitions/Pagination"
                                 },
                                 {
                                     "type": "object",
@@ -88,6 +83,34 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
+        "/contents/{contentId}": {
+            "get": {
+                "tags": [
+                    "contents"
+                ],
+                "summary": "Get one content by id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Content"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
                         }
                     },
                     "500": {
@@ -306,6 +329,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/refresh/sync-feedly": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "refresh"
+                ],
+                "summary": "Query sources used in feedly and add missing ones in Scribe",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/Source"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/JSONError"
+                        }
+                    }
+                }
+            }
+        },
         "/refresh/{sourceID}": {
             "patch": {
                 "security": [
@@ -324,6 +380,12 @@ const docTemplate = `{
                         "name": "sourceID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Will override content attributes",
+                        "name": "force",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -484,39 +546,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/sources/sync-feedly": {
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "refresh"
-                ],
-                "summary": "Query sources used in feedly and add missing ones in Scribe",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/Source"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/JSONError"
-                        }
-                    }
-                }
-            }
-        },
         "/sources/{sourceID}": {
             "delete": {
                 "security": [
@@ -604,24 +633,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "": {
-            "type": "object",
-            "properties": {
-                "items": {},
-                "page": {
-                    "type": "integer"
-                },
-                "perPage": {
-                    "type": "integer"
-                },
-                "totalPages": {
-                    "type": "integer"
-                },
-                "totalResults": {
-                    "type": "integer"
-                }
-            }
-        },
         "Content": {
             "type": "object",
             "properties": {
@@ -658,8 +669,8 @@ const docTemplate = `{
                 "rawSummary": {
                     "type": "string"
                 },
-                "sourceId": {
-                    "type": "integer"
+                "source": {
+                    "$ref": "#/definitions/Source"
                 },
                 "summary": {
                     "type": "string"
@@ -714,6 +725,24 @@ const docTemplate = `{
                 }
             }
         },
+        "Pagination": {
+            "type": "object",
+            "properties": {
+                "items": {},
+                "page": {
+                    "type": "integer"
+                },
+                "perPage": {
+                    "type": "integer"
+                },
+                "totalPages": {
+                    "type": "integer"
+                },
+                "totalResults": {
+                    "type": "integer"
+                }
+            }
+        },
         "Source": {
             "type": "object",
             "properties": {
@@ -736,7 +765,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "lang": {
-                    "type": "string"
+                    "$ref": "#/definitions/Lang"
                 },
                 "order": {
                     "type": "integer"

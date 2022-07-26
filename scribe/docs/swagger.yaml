@@ -2,18 +2,6 @@ basePath: /
 consumes:
 - application/json
 definitions:
-  "":
-    properties:
-      items: {}
-      page:
-        type: integer
-      perPage:
-        type: integer
-      totalPages:
-        type: integer
-      totalResults:
-        type: integer
-    type: object
   Content:
     properties:
       author:
@@ -39,8 +27,8 @@ definitions:
         type: string
       rawSummary:
         type: string
-      sourceId:
-        type: integer
+      source:
+        $ref: '#/definitions/Source'
       summary:
         type: string
       thumbnailUrl:
@@ -75,6 +63,18 @@ definitions:
       updatedAt:
         type: string
     type: object
+  Pagination:
+    properties:
+      items: {}
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalPages:
+        type: integer
+      totalResults:
+        type: integer
+    type: object
   Source:
     properties:
       coverUrl:
@@ -90,7 +90,7 @@ definitions:
       id:
         type: integer
       lang:
-        type: string
+        $ref: '#/definitions/Lang'
       order:
         type: integer
       publishedAt:
@@ -204,7 +204,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/'
+            - $ref: '#/definitions/Pagination'
             - properties:
                 Items:
                   items:
@@ -215,9 +215,25 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/JSONError'
-      security:
-      - ApiKeyAuth: []
       summary: Fetch contents
+      tags:
+      - contents
+  /contents/{contentId}:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Content'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Get one content by id
       tags:
       - contents
   /langs:
@@ -357,6 +373,10 @@ paths:
         name: sourceID
         required: true
         type: string
+      - description: Will override content attributes
+        in: query
+        name: force
+        type: boolean
       responses:
         "200":
           description: OK
@@ -373,6 +393,26 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Refresh a given source
+      tags:
+      - refresh
+  /refresh/sync-feedly:
+    patch:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/Source'
+              type: array
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      security:
+      - ApiKeyAuth: []
+      summary: Query sources used in feedly and add missing ones in Scribe
       tags:
       - refresh
   /sources:
@@ -514,26 +554,6 @@ paths:
       summary: Update orders of the sources
       tags:
       - sources
-  /sources/sync-feedly:
-    patch:
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              items:
-                $ref: '#/definitions/Source'
-              type: array
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/JSONError'
-      security:
-      - ApiKeyAuth: []
-      summary: Query sources used in feedly and add missing ones in Scribe
-      tags:
-      - refresh
 produces:
 - application/json
 securityDefinitions:
