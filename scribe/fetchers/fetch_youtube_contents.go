@@ -3,6 +3,7 @@ package fetchers
 import (
 	"fmt"
 
+	"github.com/k3a/html2text"
 	"github.com/skatekrak/scribe/clients/youtube"
 )
 
@@ -16,8 +17,8 @@ func (fe *Fetcher) FetchYoutubeChannelContents(channelID string) ([]ContentFetch
 
 	for i, item := range data.Items {
 		items[i] = ContentFetchData{
-			Title:          item.Snippet.Title,
-			Description:    item.Snippet.Description,
+			Title:          html2text.HTML2Text(item.Snippet.Title),
+			Description:    html2text.HTML2Text(item.Snippet.Description),
 			PublishedAt:    item.Snippet.PublishedAt,
 			RawDescription: item.Snippet.Description,
 			ThumbnailURL:   youtube.GetBestThumbnail(item.Snippet.Thumbnails),
