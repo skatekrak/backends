@@ -1,13 +1,12 @@
 on:
   push:
     branches:
-      - "main"
+      - 'main'
 
 name: Deploy
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v3
