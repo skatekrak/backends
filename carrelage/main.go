@@ -12,11 +12,14 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/skatekrak/carrelage/api/user"
 	"github.com/skatekrak/carrelage/auth"
 	"github.com/skatekrak/carrelage/models"
 	"github.com/skatekrak/carrelage/services"
 	"github.com/skatekrak/utils/database"
+	"github.com/supertokens/supertokens-golang/recipe/userroles"
 	"github.com/supertokens/supertokens-golang/supertokens"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -50,9 +53,34 @@ func main() {
 
 	app.Use(adaptor.HTTPMiddleware(supertokens.Middleware))
 
+	setupRoles()
+	setupRoute(app, db)
+
 	// Start server
 	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
 		log.Fatalln("Error listening")
 		log.Fatalln(err)
+	}
+}
+
+func setupRoute(app *fiber.App, db *gorm.DB) {
+	user.Route(app, db)
+}
+
+func setupRoles() {
+	roles := [...]string{"user", "moderator", "admin", "superadmin"}
+
+	for _, role := range roles {
+		resp, err := userroles.CreateNewRoleOrAddPermissions(role, []string{}, nil)
+		if err != nil {
+			log.Fatalf("Couldn't create or update permissions for %s role: %s", role, err.Error())
+			return
+		}
+
+		if resp.OK.CreatedNewRole {
+			log.Printf("%s role created", role)
+		} else if !resp.OK.CreatedNewRole {
+			log.Printf("%s role already exists", role)
+		}
 	}
 }

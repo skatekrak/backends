@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"net/http"
 	"os"
 
@@ -11,9 +12,28 @@ import (
 	"github.com/supertokens/supertokens-golang/recipe/emailpassword/epmodels"
 	"github.com/supertokens/supertokens-golang/recipe/session"
 	"github.com/supertokens/supertokens-golang/recipe/session/sessmodels"
+	"github.com/supertokens/supertokens-golang/recipe/userroles"
 	"github.com/supertokens/supertokens-golang/supertokens"
 	"github.com/valyala/fasthttp"
 )
+
+func addDefaultRoleToUser(userID string) {
+	resp, err := userroles.AddRoleToUser(userID, "user", nil)
+
+	if err != nil {
+		log.Printf("Couldn't assign default role to userID(%s): %s", userID, err.Error())
+		return
+	}
+
+	if resp.UnknownRoleError != nil {
+		log.Println("Default role doesn't exists")
+		return
+	}
+
+	if resp.OK.DidUserAlreadyHaveRole {
+		log.Printf("userID(%s) already had the default role", userID)
+	}
+}
 
 func signInPost(authService *services.AuthService, originalImplementation epmodels.APIInterface) {
 	originalSignInPOST := *originalImplementation.SignInPOST
@@ -47,6 +67,7 @@ func signUpPost(authService *services.AuthService, originalImplementation epmode
 			user := response.OK.User
 
 			authService.CreateUserAndProfileIfNotExists(user.ID)
+			addDefaultRoleToUser(user.ID)
 		}
 
 		return response, err
@@ -84,6 +105,7 @@ func InitSuperTokens(authService *services.AuthService) {
 					APIs: overrideAPIs(authService),
 				},
 			}),
+			userroles.Init(nil),
 			session.Init(nil),
 		},
 	})

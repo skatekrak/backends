@@ -16,7 +16,6 @@ type Model struct {
 type User struct {
 	Model
 
-	Role             string           `json:"role"`
 	UserSubscription UserSubscription `json:"subscription"`
 	// Profile          Profile          `json:"profile"`
 }
