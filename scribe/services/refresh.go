@@ -110,7 +110,7 @@ func (rs *RefreshService) RefreshByTypes(types []string) ([]*model.Content, erro
 	return formattedContents, nil
 }
 
-func (rs *RefreshService) RefreshBySource(source model.Source) ([]*model.Content, *RefreshErrors) {
+func (rs *RefreshService) RefreshBySource(source model.Source, force bool) ([]*model.Content, *RefreshErrors) {
 
 	if source.SourceType == "rss" {
 		return []*model.Content{}, &RefreshErrors{Error: errors.New("rss sources cannot be individually refreshed")}
@@ -132,11 +132,22 @@ func (rs *RefreshService) RefreshBySource(source model.Source) ([]*model.Content
 	formattedContents := []*model.Content{}
 
 	for _, content := range contentsMap[source.SourceID] {
-		// Only add content not already here
-		if _, err := rs.cs.FindOneByContentID(content.ContentID); err != nil {
+		foundContent, err := rs.cs.FindOneByContentID(content.ContentID)
+
+		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				formattedContents = append(formattedContents, formatContent(content, &source))
+				continue
+			} else {
+				continue
 			}
+		}
+
+		if force {
+			//It exists but we force the update
+			formattedContent := formatContent(content, &source)
+			formattedContent.ID = foundContent.ID
+			formattedContents = append(formattedContents, formattedContent)
 		}
 	}
 

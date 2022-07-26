@@ -48,7 +48,9 @@ func (c *Controller) RefreshByTypes(ctx *fiber.Ctx) error {
 func (c *Controller) RefreshSource(ctx *fiber.Ctx) error {
 	source := loaders.GetSource(ctx)
 
-	contents, errs := c.rs.RefreshBySource(source)
+	query := ctx.Locals(middlewares.QUERY).(RefreshSourceQuery)
+
+	contents, errs := c.rs.RefreshBySource(source, query.Force)
 	if errs != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(errs)
 	}

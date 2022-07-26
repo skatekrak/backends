@@ -18,6 +18,10 @@ type RefreshQuery struct {
 	Types []string `query:"types" validate:"required,dive,eq=vimeo|eq=youtube|eq=rss"`
 }
 
+type RefreshSourceQuery struct {
+	Force bool `query:"force"`
+}
+
 func Route(app *fiber.App, db *gorm.DB) {
 	apiKey := os.Getenv("API_KEY")
 	feedlyCategoryID := os.Getenv("FEEDLY_FETCH_CATEGORY_ID")
@@ -45,5 +49,5 @@ func Route(app *fiber.App, db *gorm.DB) {
 
 	router.Post("", auth, middlewares.QueryHandler[RefreshQuery](), controller.RefreshByTypes)
 	router.Post("/sync-feedly-sources", auth, controller.RefreshFeedly)
-	router.Post("/:sourceID", auth, sourceLoader, controller.RefreshSource)
+	router.Post("/:sourceID", auth, middlewares.QueryHandler[RefreshSourceQuery](), sourceLoader, controller.RefreshSource)
 }

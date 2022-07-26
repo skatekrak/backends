@@ -2,6 +2,7 @@ package fetchers
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/skatekrak/scribe/clients/vimeo"
 )
@@ -21,8 +22,8 @@ func (fe *Fetcher) FetchVimeoChannelContents(userID string) ([]ContentFetchData,
 			PublishedAt:    item.ReleaseTime,
 			RawDescription: item.Description,
 			ThumbnailURL:   vimeo.GetLargerImageLink(item.Pictures.Sizes),
-			ContentID:      item.URI,
-			ContentURL:     fmt.Sprintf("https://vimeo.com%s", item.URI),
+			ContentID:      strings.ReplaceAll(item.URI, "/videos/", ""),
+			ContentURL:     fmt.Sprintf("https://vimeo.com/%s", strings.ReplaceAll(item.URI, "/videos/", "")),
 		}
 	}
 

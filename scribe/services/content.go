@@ -4,6 +4,7 @@ import (
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/utils/database"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ContentService struct {
@@ -56,7 +57,10 @@ func (s *ContentService) Get(id string) (model.Content, error) {
 
 func (s *ContentService) AddMany(contents []*model.Content, sources []*model.Source) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.CreateInBatches(contents, len(contents)).Error; err != nil {
+		if err := tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "content_id"}},
+			DoUpdates: clause.AssignmentColumns([]string{"title", "published_at", "summary", "raw_summary", "thumbnail_url"}),
+		}).CreateInBatches(contents, len(contents)).Error; err != nil {
 			return err
 		}
 
