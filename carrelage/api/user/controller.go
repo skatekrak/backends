@@ -4,7 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/carrelage/models"
 	"github.com/skatekrak/carrelage/services"
+	"github.com/skatekrak/utils/middlewares"
 	"github.com/supertokens/supertokens-golang/recipe/session"
+	"github.com/supertokens/supertokens-golang/recipe/userroles"
 )
 
 type Controller struct {
@@ -53,4 +55,29 @@ func (c *Controller) GetMe(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(user)
+}
+
+func (c *Controller) UpdateUser(ctx *fiber.Ctx) error {
+	user := c.getUser(ctx)
+	body := ctx.Locals(middlewares.BODY).(UpdateUserBody)
+
+	errs := map[string]string{}
+	for _, role := range body.Roles {
+		resp, err := userroles.AddRoleToUser(user.ID, role, nil)
+		if err != nil {
+			errs[role] = err.Error()
+		}
+
+		if resp.UnknownRoleError != nil {
+			errs[role] = "This role doesn't exists"
+		}
+	}
+
+	if len(errs) > 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(errs)
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "roles updated",
+	})
 }

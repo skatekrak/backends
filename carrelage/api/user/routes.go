@@ -8,6 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type UpdateUserBody struct {
+	Roles []string `json:"roles" validate:"oneof=superadmin,admin,moderator,user"`
+}
+
 func Route(app *fiber.App, db *gorm.DB) {
 	usersService := services.NewUsersService(db)
 	controller := &Controller{
@@ -18,4 +22,5 @@ func Route(app *fiber.App, db *gorm.DB) {
 
 	router.Get("/me", auth.Logged(nil), controller.GetMe)
 	router.Get("/:userID", auth.Logged(nil), auth.RequireRole(roles.MODERATOR), controller.Loader(), controller.Get)
+	router.Patch("/:userID", auth.Logged(nil), auth.RequireRole(roles.ADMIN), controller.Loader(), controller.UpdateUser)
 }
