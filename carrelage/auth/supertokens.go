@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/carrelage/services"
+	"github.com/skatekrak/utils/helpers"
 	"github.com/supertokens/supertokens-golang/recipe/emailpassword"
 	"github.com/supertokens/supertokens-golang/recipe/emailpassword/epmodels"
 	"github.com/supertokens/supertokens-golang/recipe/session"
@@ -136,5 +137,27 @@ func Logged(options *sessmodels.VerifySessionOptions) fiber.Handler {
 			rw.WriteHeader(c.Response().StatusCode())
 			_, _ = rw.Write(c.Response().Body())
 		})))(c)
+	}
+}
+
+/**
+Throw an Unauthorized error if the user requesting the resource
+has not the given role
+**/
+func RequireRole(role string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		sessionContainer := session.GetSessionFromRequestContext(c.UserContext())
+		userId := sessionContainer.GetUserID()
+
+		resp, err := userroles.GetRolesForUser(userId, nil)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "Couldn't get your roles")
+		}
+
+		if helpers.Has(resp.OK.Roles, role) {
+			return c.Next()
+		} else {
+			return fiber.NewError(fiber.StatusUnauthorized)
+		}
 	}
 }
