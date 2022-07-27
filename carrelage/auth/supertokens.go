@@ -138,7 +138,6 @@ func Logged(options *sessmodels.VerifySessionOptions) fiber.Handler {
 			rw.WriteHeader(c.Response().StatusCode())
 			_, _ = rw.Write(c.Response().Body())
 		})))(c)
-
 	}
 }
 
@@ -170,6 +169,9 @@ func RequireRole(role string) fiber.Handler {
 	}
 }
 
+/**
+Create required roles to SuperTokens
+**/
 func SetupRoles() {
 	roles := [...]string{roles.USER, roles.MODERATOR, roles.ADMIN, roles.SUPERADMIN}
 
