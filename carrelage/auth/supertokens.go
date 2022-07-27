@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
+	"github.com/skatekrak/carrelage/auth/roles"
 	"github.com/skatekrak/carrelage/services"
 	"github.com/skatekrak/utils/helpers"
 	"github.com/supertokens/supertokens-golang/recipe/emailpassword"
@@ -158,6 +159,24 @@ func RequireRole(role string) fiber.Handler {
 			return c.Next()
 		} else {
 			return fiber.NewError(fiber.StatusUnauthorized)
+		}
+	}
+}
+
+func SetupRoles() {
+	roles := [...]string{roles.USER, roles.MODERATOR, roles.ADMIN, roles.SUPERADMIN}
+
+	for _, role := range roles {
+		resp, err := userroles.CreateNewRoleOrAddPermissions(role, []string{}, nil)
+		if err != nil {
+			log.Fatalf("Couldn't create or update permissions for %s role: %s", role, err.Error())
+			return
+		}
+
+		if resp.OK.CreatedNewRole {
+			log.Printf("%s role created", role)
+		} else if !resp.OK.CreatedNewRole {
+			log.Printf("%s role already exists", role)
 		}
 	}
 }

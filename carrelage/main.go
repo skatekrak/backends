@@ -17,7 +17,6 @@ import (
 	"github.com/skatekrak/carrelage/models"
 	"github.com/skatekrak/carrelage/services"
 	"github.com/skatekrak/utils/database"
-	"github.com/supertokens/supertokens-golang/recipe/userroles"
 	"github.com/supertokens/supertokens-golang/supertokens"
 	"gorm.io/gorm"
 )
@@ -34,6 +33,7 @@ func main() {
 
 	authService := services.NewAuthService(db)
 	auth.InitSuperTokens(authService)
+	auth.SetupRoles()
 
 	app := fiber.New()
 
@@ -53,7 +53,6 @@ func main() {
 
 	app.Use(adaptor.HTTPMiddleware(supertokens.Middleware))
 
-	setupRoles()
 	setupRoute(app, db)
 
 	// Start server
@@ -65,22 +64,4 @@ func main() {
 
 func setupRoute(app *fiber.App, db *gorm.DB) {
 	user.Route(app, db)
-}
-
-func setupRoles() {
-	roles := [...]string{"user", "moderator", "admin", "superadmin"}
-
-	for _, role := range roles {
-		resp, err := userroles.CreateNewRoleOrAddPermissions(role, []string{}, nil)
-		if err != nil {
-			log.Fatalf("Couldn't create or update permissions for %s role: %s", role, err.Error())
-			return
-		}
-
-		if resp.OK.CreatedNewRole {
-			log.Printf("%s role created", role)
-		} else if !resp.OK.CreatedNewRole {
-			log.Printf("%s role already exists", role)
-		}
-	}
 }
