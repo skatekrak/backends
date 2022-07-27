@@ -138,6 +138,7 @@ func Logged(options *sessmodels.VerifySessionOptions) fiber.Handler {
 			rw.WriteHeader(c.Response().StatusCode())
 			_, _ = rw.Write(c.Response().Body())
 		})))(c)
+
 	}
 }
 
@@ -152,13 +153,19 @@ func RequireRole(role string) fiber.Handler {
 
 		resp, err := userroles.GetRolesForUser(userId, nil)
 		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, "Couldn't get your roles")
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Couldn't get your roles",
+			})
+
 		}
 
+		log.Printf("roles for user: %s", resp.OK.Roles)
 		if helpers.Has(resp.OK.Roles, role) {
 			return c.Next()
 		} else {
-			return fiber.NewError(fiber.StatusUnauthorized)
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"message": "Nope, you're not allowed to come here",
+			})
 		}
 	}
 }
