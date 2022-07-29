@@ -4,6 +4,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/skatekrak/utils/formatter"
+	custom_validator "github.com/skatekrak/utils/validator"
 )
 
 const BODY = "body"
@@ -17,6 +18,10 @@ type ErrorResponse struct {
 }
 
 var validate = validator.New()
+
+func RegisterCustomValidator() {
+	validate.RegisterValidation("username", custom_validator.UsernameValidator)
+}
 
 func JSONHandler[T interface{}]() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {

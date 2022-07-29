@@ -12,11 +12,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/skatekrak/carrelage/api/profile"
 	"github.com/skatekrak/carrelage/api/user"
 	"github.com/skatekrak/carrelage/auth"
 	"github.com/skatekrak/carrelage/models"
 	"github.com/skatekrak/carrelage/services"
 	"github.com/skatekrak/utils/database"
+	"github.com/skatekrak/utils/middlewares"
 	"github.com/supertokens/supertokens-golang/supertokens"
 	"gorm.io/gorm"
 )
@@ -34,6 +36,8 @@ func main() {
 	authService := services.NewAuthService(db)
 	auth.InitSuperTokens(authService)
 	auth.SetupRoles()
+
+	middlewares.RegisterCustomValidator()
 
 	app := fiber.New()
 
@@ -64,4 +68,5 @@ func main() {
 
 func setupRoute(app *fiber.App, db *gorm.DB) {
 	user.Route(app, db)
+	profile.Route(app, db)
 }
