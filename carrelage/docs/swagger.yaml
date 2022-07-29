@@ -1,0 +1,121 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  JSONError:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  profile.GetProfileResponse:
+    properties:
+      bio:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      profilePictureURL:
+        type: string
+      stance:
+        type: string
+      username:
+        type: string
+    type: object
+  profile.UpdateProfileBody:
+    properties:
+      bio:
+        type: string
+      stance:
+        enum:
+        - regular
+        - goofy
+        type: string
+      username:
+        type: string
+    type: object
+host: https://carrelage.api.skatekrak.com
+info:
+  contact: {}
+  description: Docs for Carrelage API
+  license:
+    name: APGLv3
+  title: Carrelage API
+  version: "3.0"
+paths:
+  /profiles/{profileID}:
+    get:
+      parameters:
+      - description: Profile ID
+        in: path
+        name: profileID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.GetProfileResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Find a profile with its profileID
+      tags:
+      - profiles
+    patch:
+      parameters:
+      - description: Update body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/profile.UpdateProfileBody'
+      - description: Profile ID
+        in: path
+        name: profileID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.GetProfileResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Update profile
+      tags:
+      - profiles
+  /profiles/me:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.GetProfileResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Get the profile of the current authenticated user
+      tags:
+      - profiles
+produces:
+- application/json
+swagger: "2.0"

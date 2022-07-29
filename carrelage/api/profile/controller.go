@@ -12,6 +12,13 @@ type Controller struct {
 	profilesService *services.ProfilesService
 }
 
+// @Summary  Find a profile with its profileID
+// @Tags     profiles
+// @Success  200        {object}  profile.GetProfileResponse
+// @Failure  404        {object}  api.JSONError
+// @Failure  500        {object}  api.JSONError
+// @Param    profileID  path      string  true  "Profile ID"
+// @Router   /profiles/{profileID} [get]
 func (c *Controller) Get(ctx *fiber.Ctx) error {
 	profile := c.getProfile(ctx)
 
@@ -27,6 +34,12 @@ func (c *Controller) Get(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
+// @Summary  Get the profile of the current authenticated user
+// @Tags     profiles
+// @Success  200  {object}  profile.GetProfileResponse
+// @Failure  404  {object}  api.JSONError
+// @Failure  500  {object}  api.JSONError
+// @Router   /profiles/me [get]
 func (c *Controller) GetMe(ctx *fiber.Ctx) error {
 	sessionContainer := session.GetSessionFromRequestContext(ctx.UserContext())
 	userID := sessionContainer.GetUserID()
@@ -43,6 +56,14 @@ func (c *Controller) GetMe(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
+// @Summary  Update profile
+// @Tags     profiles
+// @Success  200        {object}  profile.GetProfileResponse
+// @Failure  404        {object}  api.JSONError
+// @Failure  500        {object}  api.JSONError
+// @Param    body       body      profile.UpdateProfileBody  true  "Update body"
+// @Param    profileID  path      string                     true  "Profile ID"
+// @Router   /profiles/{profileID} [patch]
 func (c *Controller) Update(ctx *fiber.Ctx) error {
 	profile := c.getProfile(ctx)
 	body := ctx.Locals(middlewares.BODY).(UpdateProfileBody)
