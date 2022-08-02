@@ -9,6 +9,43 @@ definitions:
       message:
         type: string
     type: object
+  JSONMessage:
+    properties:
+      message:
+        type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: string
+      subscription:
+        $ref: '#/definitions/models.UserSubscription'
+      updatedAt:
+        type: string
+    type: object
+  models.UserSubscription:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: string
+      subscriptionEndAt:
+        type: string
+      subscriptionStatus:
+        type: string
+      subscriptionStripeId:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        type: string
+    type: object
   profile.GetProfileResponse:
     properties:
       bio:
@@ -35,6 +72,15 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  user.UpdateUserBody:
+    properties:
+      roles:
+        items:
+          enum:
+          - superadmin
+          type: string
+        type: array
     type: object
 host: https://carrelage.api.skatekrak.com
 info:
@@ -116,6 +162,77 @@ paths:
       summary: Get the profile of the current authenticated user
       tags:
       - profiles
+  /users/{userID}:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Find a User for a given ID
+      tags:
+      - users
+    patch:
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: Update body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserBody'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/JSONMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Update the user
+      tags:
+      - users
+  /users/me:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/JSONError'
+      summary: Get the user of the connected one
+      tags:
+      - users
 produces:
 - application/json
 swagger: "2.0"
