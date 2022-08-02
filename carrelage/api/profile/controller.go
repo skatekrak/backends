@@ -22,15 +22,7 @@ type Controller struct {
 func (c *Controller) Get(ctx *fiber.Ctx) error {
 	profile := c.getProfile(ctx)
 
-	response := &GetProfileResponse{
-		ID:                profile.ID,
-		CreatedAt:         profile.CreatedAt,
-		Username:          profile.Username,
-		ProfilePictureURL: profile.ProfilePictureURL,
-		Bio:               profile.Bio,
-		Stance:            profile.Stance,
-	}
-
+	response := GetProfileResponseFrom(profile)
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
