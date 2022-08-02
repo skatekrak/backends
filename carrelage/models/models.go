@@ -16,7 +16,7 @@ type Model struct {
 type User struct {
 	Model
 
-	UserSubscription UserSubscription `json:"subscription"`
+	UserSubscription *UserSubscription `json:"subscription,omitempty"`
 	// Profile          Profile          `json:"profile"`
 }
 
