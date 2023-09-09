@@ -2,6 +2,7 @@ package profile
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/skatekrak/carrelage/filesmanager"
 	"github.com/skatekrak/carrelage/services"
 	"github.com/skatekrak/utils/helpers"
 	"github.com/skatekrak/utils/middlewares"
@@ -10,6 +11,7 @@ import (
 
 type Controller struct {
 	profilesService *services.ProfilesService
+	fm              *filesmanager.FilesManager
 }
 
 // @Summary  Find a profile with its profileID
@@ -90,4 +92,29 @@ func (c *Controller) Update(ctx *fiber.Ctx) error {
 	response := GetProfileResponseFrom(profile)
 
 	return ctx.Status(fiber.StatusOK).JSON(response)
+}
+
+// @Summary Upload a new profile picture
+// @Tags profiles
+func (c *Controller) UpdateProfilePicture(ctx *fiber.Ctx) error {
+	// profile := c.getProfile(ctx)
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Couldn't get the file",
+			"error":   err.Error(),
+		})
+	}
+
+	url, errUpload := c.fm.Upload(file)
+	if errUpload != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error while uploading the file",
+			"error":   err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"url": url,
+	})
 }
