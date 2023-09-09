@@ -3,13 +3,16 @@ package middlewares
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+
 	"github.com/skatekrak/utils/formatter"
 	custom_validator "github.com/skatekrak/utils/validator"
 )
 
-const BODY = "body"
-const QUERY = "query"
-const URI = "uri"
+const (
+	BODY  = "body"
+	QUERY = "query"
+	URI   = "uri"
+)
 
 type ErrorResponse struct {
 	FailedField string
@@ -19,8 +22,8 @@ type ErrorResponse struct {
 
 var validate = validator.New()
 
-func RegisterCustomValidator() {
-	validate.RegisterValidation("username", custom_validator.UsernameValidator)
+func RegisterCustomValidator() error {
+	return validate.RegisterValidation("username", custom_validator.UsernameValidator)
 }
 
 func JSONHandler[T interface{}]() fiber.Handler {
