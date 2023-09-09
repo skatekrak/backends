@@ -16,6 +16,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/gofiber/swagger"
+	"github.com/skatekrak/utils/database"
+	"gorm.io/gorm"
+
 	"github.com/skatekrak/scribe/api/content"
 	"github.com/skatekrak/scribe/api/lang"
 	"github.com/skatekrak/scribe/api/refresh"
@@ -24,8 +27,6 @@ import (
 	"github.com/skatekrak/scribe/jobs"
 	"github.com/skatekrak/scribe/model"
 	"github.com/skatekrak/scribe/services"
-	"github.com/skatekrak/utils/database"
-	"gorm.io/gorm"
 )
 
 // @title                       Scribe API
@@ -40,7 +41,7 @@ import (
 // @in                          header
 // @name                        Authorization
 func main() {
-	db, err := database.Open(os.Getenv("POSTGRESQL_ADDON_URI"))
+	db, err := database.Open(os.Getenv("POSTGRESQL_NEON_URI"))
 	if err != nil {
 		log.Fatalf("unable to open database: %s", err)
 	}
